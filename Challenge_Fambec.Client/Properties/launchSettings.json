@@ -15,11 +15,7 @@
       "inspectUri": "{wsProtocol}://{url.hostname}:{url.port}/_framework/debug/ws-proxy?browser={browserInspectUri}",
       "applicationUrl": "http://localhost:5000",
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development",
-        "DOTNET_USE_POLLING_FILE_WATCHER": "true",
-        "DOTNET_WATCH_RESTART_ON_RUDE_EDIT": "true",
-        "ASPNETCORE_BROWSERREFRESH_HOST": "localhost",
-        "ASPNETCORE_BROWSERREFRESH_PORT": "5000"
+        "ASPNETCORE_ENVIRONMENT": "Development"
       }
     },
     "IIS Express": {

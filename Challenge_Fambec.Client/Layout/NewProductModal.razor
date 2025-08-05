@@ -1,0 +1,164 @@
+@using Challenge_Fambec.Shared.Models.Entities
+@using Challenge_Fambec.Shared.Models.Enums
+
+<style>
+    .modal.show {
+        display: block !important;
+    }
+    
+    .modal-backdrop.show {
+        opacity: 0.5;
+    }
+</style>
+
+<div class="modal fade @(IsVisible ? "show" : "")" style="display: @(IsVisible ? "block" : "none");" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add New Product</h5>
+                <button type="button" class="btn-close" @onclick="CloseModal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <div class="row">
+                        <!-- Item Code -->
+                        <div class="col-md-6 mb-3">
+                            <label for="codItem" class="form-label">Item Code *</label>
+                            <input type="text" class="form-control" id="codItem" @bind="NewProduct.CodItem" maxlength="60" required />
+                        </div>
+
+                        <!-- Description -->
+                        <div class="col-md-6 mb-3">
+                            <label for="descrItem" class="form-label">Description *</label>
+                            <input type="text" class="form-control" id="descrItem" @bind="NewProduct.DescrItem" required />
+                        </div>
+
+                        <!-- Barcode -->
+                        <div class="col-md-6 mb-3">
+                            <label for="codBarra" class="form-label">Barcode</label>
+                            <input type="text" class="form-control" id="codBarra" @bind="NewProduct.CodBarra" />
+                        </div>
+
+                        <!-- Previous Item Code -->
+                        <div class="col-md-6 mb-3">
+                            <label for="codAntItem" class="form-label">Previous Item Code</label>
+                            <input type="text" class="form-control" id="codAntItem" @bind="NewProduct.CodAntItem" maxlength="60" />
+                        </div>
+
+                        <!-- Inventory Unit -->
+                        <div class="col-md-6 mb-3">
+                            <label for="unidInv" class="form-label">Inventory Unit *</label>
+                            <select class="form-select" id="unidInv" @bind="NewProduct.UnidInv" required>
+                                <option value="">Select unit</option>
+                                <option value="PC">PC - Piece</option>
+                                <option value="KG">KG - Kilogram</option>
+                                <option value="LT">LT - Liter</option>
+                                <option value="MT">MT - Meter</option>
+                                <option value="UN">UN - Unit</option>
+                                <option value="CX">CX - Box</option>
+                            </select>
+                        </div>
+
+                        <!-- Item Type -->
+                        <div class="col-md-6 mb-3">
+                            <label for="tipoItem" class="form-label">Item Type *</label>
+                            <select class="form-select" id="tipoItem" @bind="NewProduct.TipoItem" required>
+                                <option value="">Select type</option>
+                                @foreach (var tipo in Enum.GetValues<TipoItem>())
+                                {
+                                    <option value="@tipo">@GetTipoItemDisplayName(tipo)</option>
+                                }
+                            </select>
+                        </div>
+
+                        <!-- NCM Code -->
+                        <div class="col-md-6 mb-3">
+                            <label for="codNcm" class="form-label">NCM Code</label>
+                            <input type="text" class="form-control" id="codNcm" @bind="NewProduct.CodNcm" maxlength="8" />
+                        </div>
+
+                        <!-- IPI Exception -->
+                        <div class="col-md-6 mb-3">
+                            <label for="exIpi" class="form-label">IPI Exception</label>
+                            <input type="text" class="form-control" id="exIpi" @bind="NewProduct.ExIpi" maxlength="3" />
+                        </div>
+
+                        <!-- Genre Code -->
+                        <div class="col-md-6 mb-3">
+                            <label for="codGen" class="form-label">Genre Code</label>
+                            <input type="text" class="form-control" id="codGen" @bind="NewProduct.CodGen" maxlength="2" />
+                        </div>
+
+                        <!-- Service List Code -->
+                        <div class="col-md-6 mb-3">
+                            <label for="codLst" class="form-label">Service List Code</label>
+                            <input type="text" class="form-control" id="codLst" @bind="NewProduct.CodLst" maxlength="5" />
+                        </div>
+
+                        <!-- ICMS Rate -->
+                        <div class="col-md-6 mb-3">
+                            <label for="aliqIcms" class="form-label">ICMS Rate (%)</label>
+                            <input type="number" class="form-control" id="aliqIcms" @bind="NewProduct.AliqIcms" step="0.01" min="0" max="100" />
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" @onclick="CloseModal">Cancel</button>
+                <button type="button" class="btn btn-primary" @onclick="SaveProduct">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@if (IsVisible)
+{
+    <div class="modal-backdrop fade show"></div>
+}
+
+@code {
+    [Parameter] public bool IsVisible { get; set; }
+    [Parameter] public Action<bool>? IsVisibleChanged { get; set; }
+    [Parameter] public Action<Product>? OnProductSaved { get; set; }
+
+    private Product NewProduct = new Product();
+
+    private void CloseModal()
+    {
+        IsVisible = false;
+        IsVisibleChanged?.Invoke(IsVisible);
+        ResetForm();
+    }
+
+    private void SaveProduct()
+    {
+        // Here you can add validations before saving
+        OnProductSaved?.Invoke(NewProduct);
+        CloseModal();
+    }
+
+    private void ResetForm()
+    {
+        NewProduct = new Product();
+    }
+
+    private string GetTipoItemDisplayName(TipoItem tipo)
+    {
+        return tipo switch
+        {
+            TipoItem.MercadoriaParaRevenda => "Merchandise for Resale",
+            TipoItem.MateriaPrima => "Raw Material",
+            TipoItem.Embalagem => "Packaging",
+            TipoItem.ProdutoEmProcesso => "Work in Process",
+            TipoItem.ProdutoAcabado => "Finished Product",
+            TipoItem.Subproduto => "By-product",
+            TipoItem.ProdutoIntermediario => "Intermediate Product",
+            TipoItem.MaterialDeUsoEConsumo => "Supplies and Consumables",
+            TipoItem.AtivoImobilizado => "Fixed Assets",
+            TipoItem.Servicos => "Services",
+            TipoItem.OutrosInsumos => "Other Inputs",
+            TipoItem.Outras => "Others",
+            _ => tipo.ToString()
+        };
+    }
+}

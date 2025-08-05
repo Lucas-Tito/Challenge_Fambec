@@ -5,14 +5,16 @@ RUN apt-get update && apt-get install -y curl inotify-tools procps && rm -rf /va
 
 WORKDIR /src
 
+# Copy project files first for better layer caching
 COPY ["Challenge_Fambec.Client/Challenge_Fambec.Client.csproj", "Challenge_Fambec.Client/"]
 COPY ["Challenge_Fambec.Shared/Challenge_Fambec.Shared.csproj", "Challenge_Fambec.Shared/"]
+
+# Restore dependencies
 RUN dotnet restore "Challenge_Fambec.Client/Challenge_Fambec.Client.csproj"
 
 WORKDIR /src/Challenge_Fambec.Client
 
 EXPOSE 80
-
 EXPOSE 40565
 
 # Configure hot reload environment variables
@@ -23,7 +25,6 @@ ENV DOTNET_WATCH_SUPPRESS_EMOJIS=true
 ENV DOTNET_WATCH_SUPPRESS_MSBUILD_LOGO=true
 ENV ASPNETCORE_ENVIRONMENT=Development
 ENV ASPNETCORE_URLS=http://0.0.0.0:80
-
 # Set the browser refresh to bind to all interfaces
 ENV ASPNETCORE_BROWSERREFRESH_HOST=0.0.0.0
 ENV ASPNETCORE_BROWSERREFRESH_PORT=40565

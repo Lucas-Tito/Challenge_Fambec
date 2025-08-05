@@ -1,7 +1,206 @@
 ﻿@page "/"
+@using Challenge_Fambec.Client.Shared
+@using Challenge_Fambec.Client.Layout
+@using Challenge_Fambec.Shared.Models.Entities
+@using Challenge_Fambec.Shared.Models.Enums
+@using Challenge_Fambec.Shared.Models
 
 <PageTitle>Home</PageTitle>
 
-<h1>Hello, world!</h1>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="mb-0">Product List</h1>
+                <div class="d-flex gap-2 position-relative">
+                    <button type="button" class="btn btn-outline-secondary" title="Filter" 
+                            @onclick="ToggleFilterSubMenu"
+                            style="display: flex; align-items: center; justify-content: center; width: 38px; height: 38px;">
+                        <FilterIcon />
+                    </button>
+                    
+                    <ProductFilterSubMenu IsVisible="@showFilterSubMenu" 
+                                          IsVisibleChanged="@OnFilterSubMenuVisibilityChanged"
+                                          OnFilterChanged="@OnFilterChanged" />
+                    
+                    <button type="button" class="btn btn-primary" @onclick="OpenNewProductModal">
+                        <i class="fas fa-plus me-2"></i>
+                        Add Product
+                    </button>
+                </div>
+            </div>
+            
+            <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Item Code</th>
+                            <th>Description</th>
+                            <th>Type</th>
+                            <th>Unit</th>
+                            <th>NCM Code</th>
+                            <th>ICMS Rate</th>
+                            <th>Created</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var product in mockProducts)
+                        {
+                            <tr>
+                                <td>@product.CodItem</td>
+                                <td>@product.DescrItem</td>
+                                <td>@GetTipoItemDisplayName(product.TipoItem)</td>
+                                <td>@product.UnidInv</td>
+                                <td>@product.CodNcm</td>
+                                <td>
+                                    @if (product.AliqIcms.HasValue)
+                                    {
+                                        <span>@product.AliqIcms.Value.ToString("F2")%</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">N/A</span>
+                                    }
+                                </td>
+                                <td>@product.DataCriacao.ToString("dd/MM/yyyy")</td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <button type="button" class="btn btn-sm" title="Details">
+                                            <EyeIcon Style="width: 1.5rem; height: 1.5rem; stroke: var(--color-secondary);" />
+                                        </button>
+                                        <button type="button" class="btn btn-sm" title="Edit">
+                                            <PencilIcon Style="width: 1.5rem; height: 1.5rem; fill: var(--color-secondary);" />
+                                        </button>
+                                        <button type="button" class="btn btn-sm" title="Delete">
+                                            <TrashIcon Style="width: 1.25rem; height: 1.25rem; stroke: var(--color-danger);" />
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
 
-Welcome to your new app.
+<!-- New Product Modal -->
+<NewProductModal IsVisible="@showNewProductModal" 
+                 IsVisibleChanged="@OnModalVisibilityChanged" 
+                 OnProductSaved="@OnProductSaved" />
+
+@code {
+    private bool showNewProductModal = false;
+    private bool showFilterSubMenu = false;
+    private ProductFilterOptions currentFilter = new ProductFilterOptions();
+    
+    private List<Product> mockProducts = new List<Product>
+    {
+        new Product
+        {
+            Id = 1,
+            CodItem = "PROD001",
+            DescrItem = "Premium Steel Widget",
+            UnidInv = "PC",
+            TipoItem = TipoItem.ProdutoAcabado,
+            CodNcm = "73269090",
+            AliqIcms = 18.00m,
+            DataCriacao = DateTime.Now.AddMonths(-2),
+            DataAtualizacao = DateTime.Now.AddDays(-5)
+        },
+        new Product
+        {
+            Id = 2,
+            CodItem = "SERV001",
+            DescrItem = "Technical Consulting Service",
+            UnidInv = "UN",
+            TipoItem = TipoItem.Servicos,
+            CodLst = "01.02",
+            DataCriacao = DateTime.Now.AddMonths(-1),
+            DataAtualizacao = DateTime.Now.AddDays(-3)
+        },
+        new Product
+        {
+            Id = 3,
+            CodItem = "MAT001",
+            DescrItem = "Raw Steel Material",
+            UnidInv = "KG",
+            TipoItem = TipoItem.MateriaPrima,
+            CodNcm = "72071100",
+            AliqIcms = 12.00m,
+            DataCriacao = DateTime.Now.AddMonths(-3),
+            DataAtualizacao = DateTime.Now.AddDays(-10)
+        },
+        new Product
+        {
+            Id = 4,
+            CodItem = "EMB001",
+            DescrItem = "Cardboard Packaging Box",
+            UnidInv = "CX",
+            TipoItem = TipoItem.Embalagem,
+            CodNcm = "48191000",
+            AliqIcms = 7.00m,
+            DataCriacao = DateTime.Now.AddMonths(-1),
+            DataAtualizacao = DateTime.Now.AddDays(-2)
+        }
+    };
+
+    private void OpenNewProductModal()
+    {
+        showNewProductModal = true;
+    }
+
+    private void OnModalVisibilityChanged(bool isVisible)
+    {
+        showNewProductModal = isVisible;
+    }
+
+    private void OnProductSaved(Product newProduct)
+    {
+        // Add the new product to the list with a mock ID
+        newProduct.Id = mockProducts.Max(p => p.Id) + 1;
+        newProduct.DataCriacao = DateTime.Now;
+        newProduct.DataAtualizacao = DateTime.Now;
+        mockProducts.Add(newProduct);
+    }
+    
+    private void ToggleFilterSubMenu()
+    {
+        showFilterSubMenu = !showFilterSubMenu;
+    }
+    
+    private void OnFilterSubMenuVisibilityChanged(bool isVisible)
+    {
+        showFilterSubMenu = isVisible;
+    }
+    
+    private void OnFilterChanged(ProductFilterOptions filterOptions)
+    {
+        currentFilter = filterOptions;
+        // Here you can implement the filtering logic for products
+        // For example: apply filters to the mockProducts list
+        StateHasChanged();
+    }
+    
+    private string GetTipoItemDisplayName(TipoItem tipo)
+    {
+        return tipo switch
+        {
+            TipoItem.MercadoriaParaRevenda => "Merchandise for Resale",
+            TipoItem.MateriaPrima => "Raw Material",
+            TipoItem.Embalagem => "Packaging",
+            TipoItem.ProdutoEmProcesso => "Work in Process",
+            TipoItem.ProdutoAcabado => "Finished Product",
+            TipoItem.Subproduto => "By-product",
+            TipoItem.ProdutoIntermediario => "Intermediate Product",
+            TipoItem.MaterialDeUsoEConsumo => "Supplies and Consumables",
+            TipoItem.AtivoImobilizado => "Fixed Assets",
+            TipoItem.Servicos => "Services",
+            TipoItem.OutrosInsumos => "Other Inputs",
+            TipoItem.Outras => "Others",
+            _ => tipo.ToString()
+        };
+    }
+}
