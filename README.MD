@@ -51,3 +51,22 @@ sudo docker stop $(sudo docker ps -aq --filter "name=challenge-fambec")
 curl http://localhost:5001/api/partners | jq '.'
 ```
 
+## SQLCMD
+
+```bash
+sqlcmd -S localhost -U SA -P "YourStrong@Passw0rd"
+```
+
+```sql
+USE Challenge_FambecDb
+GO
+
+SELECT TABLE_SCHEMA, TABLE_NAME
+FROM INFORMATION_SCHEMA.TABLES
+WHERE TABLE_TYPE = 'BASE TABLE';
+GO
+
+SELECT * FROM Products;
+GO
+```
+
