@@ -33,14 +33,24 @@ services:
       - Logging__LogLevel__Default=Warning
       - Logging__LogLevel__Microsoft.AspNetCore=Warning
       - Logging__LogLevel__Microsoft.EntityFrameworkCore=Warning
+      # Settings for hot-reload
+      - DOTNET_USE_POLLING_FILE_WATCHER=true
+      - DOTNET_WATCH_RESTART_ON_RUDE_EDIT=true
     ports:
       - "5001:80"
     depends_on:
       sqlserver:
         condition: service_healthy
     volumes:
-      # Mounts your source code so the entrypoint script is found and live-reload works
+      # Mount the entire source code for hot-reload
       - .:/src
+      # Exclude folders that should not be mounted
+      - /src/Challenge_Fambec.Server/bin
+      - /src/Challenge_Fambec.Server/obj
+      - /src/Challenge_Fambec.Client/bin
+      - /src/Challenge_Fambec.Client/obj
+      - /src/Challenge_Fambec.Shared/bin
+      - /src/Challenge_Fambec.Shared/obj
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:80/health"]
       interval: 30s
@@ -49,27 +59,60 @@ services:
       start_period: 40s
     networks:
       - challenge-fambec-network
-    # The command for the script to execute after the certificate check
-    command: ["dotnet", "watch", "run", "--no-launch-profile"]
 
   client:
     build:
       context: .
       dockerfile: Challenge_Fambec.Client/Dockerfile.dev
     container_name: challenge-fambec-client
-    ports:
-      - "5000:80"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80
+      # Enhanced settings for hot-reload in Blazor WASM
+      - DOTNET_USE_POLLING_FILE_WATCHER=true
+      - DOTNET_WATCH_RESTART_ON_RUDE_EDIT=true
+      - DOTNET_WATCH_SUPPRESS_LAUNCH_BROWSER=true
+      - DOTNET_WATCH_SUPPRESS_EMOJIS=true
+      - DOTNET_WATCH_SUPPRESS_MSBUILD_LOGO=true
+      - DOTNET_WATCH_SUPPRESS_BUILD_CACHE=true
+      # Enable detailed logging for debugging hot reload issues
+      - DOTNET_WATCH_LOG_LEVEL=Trace
+      # Configure browser refresh
+      - ASPNETCORE_BROWSERREFRESH_HOST=0.0.0.0
+      - ASPNETCORE_BROWSERREFRESH_PORT=40565
+      - BROWSER_REFRESH_PORT=40565
+      - CONTAINER_HOST=0.0.0.0
+    # ports:
+    #   - "5000:80"
+    #   # Map browser refresh port
+    #   - "40565:40565"
     depends_on:
       api:
         condition: service_healthy
+    volumes:
+      # Mount the entire source code for hot-reload with consistent paths
+      - .:/src:consistent
+      # Exclude build artifacts but allow source changes
+      - /src/Challenge_Fambec.Server/bin
+      - /src/Challenge_Fambec.Server/obj
+      - /src/Challenge_Fambec.Client/bin
+      - /src/Challenge_Fambec.Client/obj
+      - /src/Challenge_Fambec.Shared/bin
+      - /src/Challenge_Fambec.Shared/obj
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:80"]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 40s
-    networks:
-      - challenge-fambec-network
+    # networks:
+    #   - challenge-fambec-network
+    network_mode: host
+    # Use init for proper signal handling
+    init: true
+    # Better file system performance
+    tmpfs:
+      - /tmp:noexec,nosuid,size=100m
 
 volumes:
   sqlserver_data:

@@ -1,6 +1,16 @@
 FROM mcr.microsoft.com/dotnet/sdk:9.0
 
+RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /src
+
+COPY ["Challenge_Fambec.Server/Challenge_Fambec.Server.csproj", "Challenge_Fambec.Server/"]
+COPY ["Challenge_Fambec.Shared/Challenge_Fambec.Shared.csproj", "Challenge_Fambec.Shared/"]
+
+RUN dotnet restore "Challenge_Fambec.Server/Challenge_Fambec.Server.csproj"
+
 WORKDIR /src/Challenge_Fambec.Server
 
 EXPOSE 80
-EXPOSE 443
+
+CMD ["dotnet", "watch", "run", "--no-launch-profile", "--urls", "http://0.0.0.0:80"]
