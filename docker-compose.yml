@@ -6,6 +6,9 @@ services:
       - ACCEPT_EULA=Y
       - SA_PASSWORD=YourStrong@Passw0rd
       - MSSQL_PID=Express
+      - MSSQL_AGENT_ENABLED=false
+      - MSSQL_TELEMETRY_ENABLED=false
+      - MSSQL_TRACEFLAG=3226,3608,1204,1222,2528
     ports:
       - "1433:1433"
     volumes:
@@ -27,6 +30,9 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:80
+      - Logging__LogLevel__Default=Warning
+      - Logging__LogLevel__Microsoft.AspNetCore=Warning
+      - Logging__LogLevel__Microsoft.EntityFrameworkCore=Warning
     ports:
       - "5001:80"
     depends_on:
