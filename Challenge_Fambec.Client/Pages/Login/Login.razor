@@ -1,0 +1,122 @@
+@page "/login"
+
+@using Challenge_Fambec.Client.Shared
+
+<div class="login-page-container">
+    <div style="text-align: center;">
+        <h1 class="login-title">
+            Login Title
+        </h1>
+        <p class="login-subtitle">
+            Login Subtitle
+        </p>
+        <button @onclick="SignInWithGoogle" class="login-google-button">
+            Login with Google
+            <GoogleIcon CssClass="width: 1.25rem; height: 1.25rem; stroke: white; display: inline-block; vertical-align: middle;" />
+        </button>
+    </div>
+
+    <div class="features-cards-section">
+        <div class="width-limiter-container">
+            <div class="feature-cards-section-text-container">
+                <div style="flex: 1;">
+                    <h1 class="feature-cards-section-title">
+                        Features Title
+                    </h1>
+                </div>
+                <div style="flex: 1;">
+                    <p class="feature-cards-section-subtitle">
+                        Features Subtitle
+                    </p>
+                </div>
+            </div>
+            
+            <!-- SVGs Cards -->
+            <div style="display: flex; justify-content: space-between; margin-top: 1.5rem;">
+                <div class="cards-container" @onmouseenter="() => ShowGif(0)" @onmouseleave="() => HideGif(0)">
+                    <!-- Card -->
+                    <div class="card-svg-container @(activeCard == 0 ? "hidden" : "")">
+                        <FastForwardIcon CssClass="width: 5rem; height: 5rem; fill: var(--color-secondary);" />
+                        <h3 class="card-svg-title">
+                            Agility Card
+                        </h3>
+                    </div>
+                    
+                    <!-- Hover GIF -->
+                    <div class="card-gif-container @(activeCard == 0 ? "" : "hidden")">
+                        @* <img src="agility_gif.gif" alt="Demonstração de agilidade" class="card-gif" /> *@
+                    </div>
+                </div>
+                
+                <div class="cards-container" @onmouseenter="() => ShowGif(1)" @onmouseleave="() => HideGif(1)">
+                    <!-- Card -->
+                    <div class="card-svg-container @(activeCard == 1 ? "hidden" : "")">
+                        <TeamIcon CssClass="width: 5rem; height: 5rem; stroke: var(--color-secondary);" />
+                        <h3 class="card-svg-title">
+                            Collaboration Card
+                        </h3>
+                    </div>
+                    
+                    <!-- Hover GIF -->
+                    <div class="card-gif-container @(activeCard == 1 ? "" : "hidden")">
+                        @* <img src="agility_gif.gif" alt="Demonstração de colaboração" class="card-gif" /> *@
+                    </div>
+                </div>
+
+                <div class="cards-container" @onmouseenter="() => ShowGif(2)" @onmouseleave="() => HideGif(2)">
+                    <!-- Card -->
+                    <div class="card-svg-container @(activeCard == 2 ? "hidden" : "")">
+                        <PaintBrushIcon CssClass="width: 5rem; height: 5rem; stroke: var(--color-secondary);" />
+                        <h3 class="card-svg-title">
+                            Customization Card
+                        </h3>
+                    </div>
+                    
+                    <!-- Hover GIF -->
+                    <div class="card-gif-container @(activeCard == 2 ? "" : "hidden")">
+                        @* <img src="customization_gif.gif" alt="Demonstração de customização" class="card-gif" /> *@
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- AI GIF Section -->
+    <div class="ai-gif-section">
+        <div class="ai-gif-container">
+            <div class="ai-gif-text-container">
+                <h1 class="ai-gif-title">
+                    AI Feature Title
+                </h1>
+                <p class="ai-gif-subtitle">
+                    AI Feature Description
+                </p>
+            </div>
+            <div style="flex-shrink: 0;">
+                @* <img src="gif_summarize_tasks.gif" alt="Demonstração de UX" class="ai-gif" /> *@
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private int activeCard = -1;
+
+    private void SignInWithGoogle()
+    {
+        // Implementar lógica de login com Google
+    }
+
+    private void ShowGif(int cardIndex)
+    {
+        activeCard = cardIndex;
+    }
+
+    private void HideGif(int cardIndex)
+    {
+        if (activeCard == cardIndex)
+        {
+            activeCard = -1;
+        }
+    }
+}
