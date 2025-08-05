@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Challenge_Fambec.Shared.Models.Entities;
 using Challenge_Fambec.Shared.Models;
+using Challenge_Fambec.Shared.Models.Enums;
 
 namespace Challenge_Fambec.Server.Data
 {
@@ -48,6 +49,61 @@ namespace Challenge_Fambec.Server.Data
                 entity.HasIndex(e => e.CodItem);
                 entity.HasIndex(e => e.TipoItem);
             });
+
+            // Seed data - 4 produtos iniciais
+            modelBuilder.Entity<Product>().HasData(
+                new Product
+                {
+                    Id = 1,
+                    CodItem = "PROD001",
+                    DescrItem = "Notebook Dell Inspiron 15",
+                    CodBarra = "7891234567890",
+                    UnidInv = "UN",
+                    TipoItem = TipoItem.MercadoriaParaRevenda,
+                    CodNcm = "84713012",
+                    AliqIcms = 18.00m,
+                    DataCriacao = new DateTime(2025, 1, 1, 0, 0, 0, DateTimeKind.Utc),
+                    DataAtualizacao = new DateTime(2025, 1, 1, 0, 0, 0, DateTimeKind.Utc)
+                },
+                new Product
+                {
+                    Id = 2,
+                    CodItem = "PROD002",
+                    DescrItem = "Mouse Logitech MX Master",
+                    CodBarra = "7891234567891",
+                    UnidInv = "UN",
+                    TipoItem = TipoItem.MercadoriaParaRevenda,
+                    CodNcm = "84716090",
+                    AliqIcms = 18.00m,
+                    DataCriacao = new DateTime(2025, 1, 1, 0, 0, 0, DateTimeKind.Utc),
+                    DataAtualizacao = new DateTime(2025, 1, 1, 0, 0, 0, DateTimeKind.Utc)
+                },
+                new Product
+                {
+                    Id = 3,
+                    CodItem = "PROD003",
+                    DescrItem = "Teclado Mecânico Corsair",
+                    CodBarra = "7891234567892",
+                    UnidInv = "UN",
+                    TipoItem = TipoItem.MercadoriaParaRevenda,
+                    CodNcm = "84716090",
+                    AliqIcms = 18.00m,
+                    DataCriacao = new DateTime(2025, 1, 1, 0, 0, 0, DateTimeKind.Utc),
+                    DataAtualizacao = new DateTime(2025, 1, 1, 0, 0, 0, DateTimeKind.Utc)
+                },
+                new Product
+                {
+                    Id = 4,
+                    CodItem = "SRV001",
+                    DescrItem = "Consultoria Desenvolvimento",
+                    UnidInv = "HORA",
+                    TipoItem = TipoItem.Servicos,
+                    CodLst = "01.05",
+                    AliqIcms = 0.00m,
+                    DataCriacao = new DateTime(2025, 1, 1, 0, 0, 0, DateTimeKind.Utc),
+                    DataAtualizacao = new DateTime(2025, 1, 1, 0, 0, 0, DateTimeKind.Utc)
+                }
+            );
         }
     }
 }
