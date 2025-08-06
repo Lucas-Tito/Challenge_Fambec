@@ -1,5 +1,3 @@
-# Dev Quickstart
-
 ## Docker Hard Reset
 
 ```bash
@@ -17,7 +15,7 @@ Expected Ports:
 
 ---
 
-## 📦 Migrations
+## Migrations
 
 ```bash
 dotnet ef migrations add <migration_name>
@@ -25,7 +23,7 @@ dotnet ef migrations add <migration_name>
 
 ---
 
-## 🖥️ Run Locally (Host)
+## Run Locally (Host)
 
 ```bash
 # In project root
@@ -45,7 +43,7 @@ sudo docker stop $(sudo docker ps -aq --filter "name=challenge-fambec")
 
 ---
 
-## 🔎 List Mock Partners
+## List Mock Partners
 
 ```bash
 curl http://localhost:5214/api/products/1
