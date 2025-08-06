@@ -28,9 +28,14 @@ public class ProductFilterRequest
     public TipoItem? TipoItem { get; set; }
     
     /// <summary>
-    /// Filter by inventory unit
+    /// Filter by inventory unit (for backward compatibility)
     /// </summary>
     public string? UnidInv { get; set; }
+    
+    /// <summary>
+    /// Filter by inventory units (multiple selection allowed)
+    /// </summary>
+    public List<string> UnidInvs { get; set; } = new();
     
     /// <summary>
     /// Filter by NCM code

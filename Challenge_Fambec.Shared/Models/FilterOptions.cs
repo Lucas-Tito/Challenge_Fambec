@@ -27,17 +27,20 @@ namespace Challenge_Fambec.Shared.Models
         /// </summary>
         public TipoItem? TipoItem { get; set; }
         
-        /// <summary>
-        /// Filter by inventory unit
-        /// </summary>
-        public string? UnidInv { get; set; }
-        
-        /// <summary>
-        /// Filter by NCM code
-        /// </summary>
-        public string? CodNcm { get; set; }
-        
-        /// <summary>
+    /// <summary>
+    /// Filter by inventory unit (for backward compatibility)
+    /// </summary>
+    public string? UnidInv { get; set; }
+    
+    /// <summary>
+    /// Filter by inventory units (multiple selection allowed)
+    /// </summary>
+    public List<string> UnidInvs { get; set; } = new();
+    
+    /// <summary>
+    /// Filter by NCM code
+    /// </summary>
+    public string? CodNcm { get; set; }        /// <summary>
         /// List of selected filter tags
         /// </summary>
         public List<string> Tags { get; set; } = new();

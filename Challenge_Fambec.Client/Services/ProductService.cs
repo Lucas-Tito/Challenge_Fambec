@@ -215,8 +215,18 @@ public class ProductService : IProductService
             queryParams.Add($"TipoItem={filter.TipoItem}");
         }
 
-        if (!string.IsNullOrEmpty(filter.UnidInv))
+        if (filter.UnidInvs.Any())
+        {
+            foreach (var unidInv in filter.UnidInvs)
+            {
+                queryParams.Add($"UnidInvs={Uri.EscapeDataString(unidInv)}");
+            }
+        }
+        else if (!string.IsNullOrEmpty(filter.UnidInv))
+        {
+            // Backward compatibility
             queryParams.Add($"UnidInv={Uri.EscapeDataString(filter.UnidInv)}");
+        }
 
         if (!string.IsNullOrEmpty(filter.CodNcm))
             queryParams.Add($"CodNcm={Uri.EscapeDataString(filter.CodNcm)}");
