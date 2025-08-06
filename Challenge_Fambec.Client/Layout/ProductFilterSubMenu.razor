@@ -1,4 +1,5 @@
 @using Challenge_Fambec.Shared.Models.Enums
+@using Challenge_Fambec.Shared.Models
 
 @if (IsVisible)
 {
@@ -12,7 +13,7 @@
                     <input class="form-check-input" type="checkbox" 
                            id="tipo-@tipo" 
                            checked="@isChecked"
-                           @onchange="@(e => HandleTypeChange(tipo, (bool)e.Value!))" />
+                           @onchange="@(e => ToggleType(tipo, (bool)e.Value!))" />
                     <label class="form-check-label" for="tipo-@tipo">
                         @GetTipoItemDisplayName(tipo)
                     </label>
@@ -28,7 +29,7 @@
                     <input class="form-check-input" type="checkbox" 
                            id="unit-@unit" 
                            checked="@SelectedUnits.Contains(unit)"
-                           @onchange="@((e) => ToggleUnit(unit, e.Value?.ToString() == "true"))" />
+                           @onchange="@((e) => ToggleUnit(unit, (bool)e.Value!))" />
                     <label class="form-check-label" for="unit-@unit">
                         @unit
                     </label>
@@ -51,24 +52,6 @@
         "PC", "KG", "LT", "MT", "UN", "CX"
     };
     
-    private void HandleTypeChange(TipoItem tipo, bool isSelected)
-    {
-        Console.WriteLine($"HandleTypeChange called: {tipo} ({(int)tipo}), isSelected: {isSelected}");
-        
-        if (isSelected && !SelectedTypes.Contains(tipo))
-        {
-            SelectedTypes.Add(tipo);
-            Console.WriteLine($"Added {tipo} to SelectedTypes. Count: {SelectedTypes.Count}");
-        }
-        else if (!isSelected && SelectedTypes.Contains(tipo))
-        {
-            SelectedTypes.Remove(tipo);
-            Console.WriteLine($"Removed {tipo} from SelectedTypes. Count: {SelectedTypes.Count}");
-        }
-        
-        _ = NotifyFilterChanged();
-    }
-    
     private async Task ToggleType(TipoItem tipo, bool isSelected)
     {
         Console.WriteLine($"ToggleType called: {tipo} ({(int)tipo}), isSelected: {isSelected}");
@@ -89,13 +72,17 @@
     
     private async Task ToggleUnit(string unit, bool isSelected)
     {
+        Console.WriteLine($"ToggleUnit called: {unit}, isSelected: {isSelected}");
+        
         if (isSelected && !SelectedUnits.Contains(unit))
         {
             SelectedUnits.Add(unit);
+            Console.WriteLine($"Added {unit} to SelectedUnits. Count: {SelectedUnits.Count}");
         }
         else if (!isSelected && SelectedUnits.Contains(unit))
         {
             SelectedUnits.Remove(unit);
+            Console.WriteLine($"Removed {unit} from SelectedUnits. Count: {SelectedUnits.Count}");
         }
         
         await NotifyFilterChanged();
@@ -106,6 +93,7 @@
         var filterOptions = new ProductFilterOptions
         {
             TipoItems = new List<TipoItem>(SelectedTypes),
+            UnidInvs = new List<string>(SelectedUnits),
             Tags = new List<string>()
         };
         
@@ -116,8 +104,12 @@
             Console.WriteLine($"Selected type: {type} ({(int)type})");
         }
         
-        // Add selected units as tags for filtering
-        filterOptions.Tags.AddRange(SelectedUnits);
+        // Debug: log selected units
+        Console.WriteLine($"Selected units count: {SelectedUnits.Count}");
+        foreach (var unit in SelectedUnits)
+        {
+            Console.WriteLine($"Selected unit: {unit}");
+        }
         
         await OnFilterChanged.InvokeAsync(filterOptions);
     }

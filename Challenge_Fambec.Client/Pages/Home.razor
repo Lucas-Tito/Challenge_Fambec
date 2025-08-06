@@ -144,6 +144,7 @@
                 CodItem = currentFilter.CodItem,
                 DescrItem = currentFilter.DescrItem,
                 TipoItems = currentFilter.TipoItems,
+                UnidInvs = currentFilter.UnidInvs,
                 UnidInv = currentFilter.UnidInv,
                 CodNcm = currentFilter.CodNcm,
                 Page = 1,
@@ -154,6 +155,12 @@
             foreach (var tipo in filterRequest.TipoItems)
             {
                 Console.WriteLine($"Filter request TipoItem: {tipo} ({(int)tipo})");
+            }
+            
+            Console.WriteLine($"Filter request UnidInvs count: {filterRequest.UnidInvs.Count}");
+            foreach (var unit in filterRequest.UnidInvs)
+            {
+                Console.WriteLine($"Filter request UnidInv: {unit}");
             }
             
             products = await ProductService.GetProductsAsync(filterRequest);
