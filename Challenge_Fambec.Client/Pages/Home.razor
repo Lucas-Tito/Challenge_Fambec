@@ -6,7 +6,9 @@
 @using Challenge_Fambec.Shared.Models
 @using Challenge_Fambec.Shared.Models.DTOs
 @using Challenge_Fambec.Client.Services
+@using Microsoft.JSInterop
 @inject IProductService ProductService
+@inject IJSRuntime JSRuntime
 
 <PageTitle>Home</PageTitle>
 
@@ -250,8 +252,7 @@
     /// </summary>
     private async Task DeleteProduct(int productId)
     {
-        // TODO: Add confirmation dialog
-        var confirmed = true; // For now, assume confirmed
+        var confirmed = await JSRuntime.InvokeAsync<bool>("confirm", "Tem certeza que deseja excluir este produto?");
         
         if (confirmed)
         {
