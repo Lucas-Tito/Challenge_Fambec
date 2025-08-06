@@ -8,6 +8,16 @@ namespace Challenge_Fambec.Shared.Models
     public class ProductFilterOptions
     {
         /// <summary>
+        /// Filter by item code (partial match)
+        /// </summary>
+        public string? CodItem { get; set; }
+        
+        /// <summary>
+        /// Filter by item description (partial match)
+        /// </summary>
+        public string? DescrItem { get; set; }
+        
+        /// <summary>
         /// Filter by item type
         /// </summary>
         public TipoItem? TipoItem { get; set; }

@@ -4,6 +4,9 @@
 @using Challenge_Fambec.Shared.Models.Entities
 @using Challenge_Fambec.Shared.Models.Enums
 @using Challenge_Fambec.Shared.Models
+@using Challenge_Fambec.Shared.Models.DTOs
+@using Challenge_Fambec.Client.Services
+@inject IProductService ProductService
 
 <PageTitle>Home</PageTitle>
 
@@ -45,39 +48,61 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach (var product in mockProducts)
+                        @if (isLoading)
                         {
                             <tr>
-                                <td>@product.CodItem</td>
-                                <td>@product.DescrItem</td>
-                                <td>@GetTipoItemDisplayName(product.TipoItem)</td>
-                                <td>@product.UnidInv</td>
-                                <td>@product.CodNcm</td>
-                                <td>
-                                    @if (product.AliqIcms.HasValue)
-                                    {
-                                        <span>@product.AliqIcms.Value.ToString("F2")%</span>
-                                    }
-                                    else
-                                    {
-                                        <span class="text-muted">N/A</span>
-                                    }
-                                </td>
-                                <td>@product.DataCriacao.ToString("dd/MM/yyyy")</td>
-                                <td>
-                                    <div class="btn-group" role="group">
-                                        <button type="button" class="btn btn-sm" title="Details">
-                                            <EyeIcon Style="width: 1.5rem; height: 1.5rem; stroke: var(--color-secondary);" />
-                                        </button>
-                                        <button type="button" class="btn btn-sm" title="Edit">
-                                            <PencilIcon Style="width: 1.5rem; height: 1.5rem; fill: var(--color-secondary);" />
-                                        </button>
-                                        <button type="button" class="btn btn-sm" title="Delete">
-                                            <TrashIcon Style="width: 1.25rem; height: 1.25rem; stroke: var(--color-danger);" />
-                                        </button>
+                                <td colspan="8" class="text-center py-4">
+                                    <div class="spinner-border text-primary" role="status">
+                                        <span class="visually-hidden">Loading...</span>
                                     </div>
+                                    <div class="mt-2">Loading products...</div>
                                 </td>
                             </tr>
+                        }
+                        else if (!products.Any())
+                        {
+                            <tr>
+                                <td colspan="8" class="text-center py-4 text-muted">
+                                    No products found. Add your first product to get started.
+                                </td>
+                            </tr>
+                        }
+                        else
+                        {
+                            @foreach (var product in products)
+                            {
+                                <tr>
+                                    <td>@product.CodItem</td>
+                                    <td>@product.DescrItem</td>
+                                    <td>@GetTipoItemDisplayName(product.TipoItem)</td>
+                                    <td>@product.UnidInv</td>
+                                    <td>@product.CodNcm</td>
+                                    <td>
+                                        @if (product.AliqIcms.HasValue)
+                                        {
+                                            <span>@product.AliqIcms.Value.ToString("F2")%</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">N/A</span>
+                                        }
+                                    </td>
+                                    <td>@product.DataCriacao.ToString("dd/MM/yyyy")</td>
+                                    <td>
+                                        <div class="btn-group" role="group">
+                                            <button type="button" class="btn btn-sm" title="Details" @onclick="() => ViewProduct(product.Id)">
+                                                <EyeIcon Style="width: 1.5rem; height: 1.5rem; stroke: var(--color-secondary);" />
+                                            </button>
+                                            <button type="button" class="btn btn-sm" title="Edit" @onclick="() => EditProduct(product.Id)">
+                                                <PencilIcon Style="width: 1.5rem; height: 1.5rem; fill: var(--color-secondary);" />
+                                            </button>
+                                            <button type="button" class="btn btn-sm" title="Delete" @onclick="() => DeleteProduct(product.Id)">
+                                                <TrashIcon Style="width: 1.25rem; height: 1.25rem; stroke: var(--color-danger);" />
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
                         }
                     </tbody>
                 </table>
@@ -94,96 +119,151 @@
 @code {
     private bool showNewProductModal = false;
     private bool showFilterSubMenu = false;
+    private bool isLoading = true;
     private ProductFilterOptions currentFilter = new ProductFilterOptions();
+    private List<Product> products = new List<Product>();
     
-    private List<Product> mockProducts = new List<Product>
+    protected override async Task OnInitializedAsync()
     {
-        new Product
+        await LoadProductsAsync();
+    }
+    
+    /// <summary>
+    /// Loads products from the API with current filter settings
+    /// </summary>
+    private async Task LoadProductsAsync()
+    {
+        isLoading = true;
+        StateHasChanged();
+        
+        try
         {
-            Id = 1,
-            CodItem = "PROD001",
-            DescrItem = "Premium Steel Widget",
-            UnidInv = "PC",
-            TipoItem = TipoItem.ProdutoAcabado,
-            CodNcm = "73269090",
-            AliqIcms = 18.00m,
-            DataCriacao = DateTime.Now.AddMonths(-2),
-            DataAtualizacao = DateTime.Now.AddDays(-5)
-        },
-        new Product
-        {
-            Id = 2,
-            CodItem = "SERV001",
-            DescrItem = "Technical Consulting Service",
-            UnidInv = "UN",
-            TipoItem = TipoItem.Servicos,
-            CodLst = "01.02",
-            DataCriacao = DateTime.Now.AddMonths(-1),
-            DataAtualizacao = DateTime.Now.AddDays(-3)
-        },
-        new Product
-        {
-            Id = 3,
-            CodItem = "MAT001",
-            DescrItem = "Raw Steel Material",
-            UnidInv = "KG",
-            TipoItem = TipoItem.MateriaPrima,
-            CodNcm = "72071100",
-            AliqIcms = 12.00m,
-            DataCriacao = DateTime.Now.AddMonths(-3),
-            DataAtualizacao = DateTime.Now.AddDays(-10)
-        },
-        new Product
-        {
-            Id = 4,
-            CodItem = "EMB001",
-            DescrItem = "Cardboard Packaging Box",
-            UnidInv = "CX",
-            TipoItem = TipoItem.Embalagem,
-            CodNcm = "48191000",
-            AliqIcms = 7.00m,
-            DataCriacao = DateTime.Now.AddMonths(-1),
-            DataAtualizacao = DateTime.Now.AddDays(-2)
+            // Convert filter options to request DTO
+            var filterRequest = new ProductFilterRequest
+            {
+                CodItem = currentFilter.CodItem,
+                DescrItem = currentFilter.DescrItem,
+                TipoItem = currentFilter.TipoItem,
+                UnidInv = currentFilter.UnidInv,
+                CodNcm = currentFilter.CodNcm,
+                Page = 1,
+                PageSize = 100 // Load more items for better UX
+            };
+            
+            products = await ProductService.GetProductsAsync(filterRequest);
         }
-    };
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading products: {ex.Message}");
+            products = new List<Product>();
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
 
+    /// <summary>
+    /// Opens the new product modal
+    /// </summary>
     private void OpenNewProductModal()
     {
         showNewProductModal = true;
     }
 
+    /// <summary>
+    /// Handles modal visibility changes
+    /// </summary>
     private void OnModalVisibilityChanged(bool isVisible)
     {
         showNewProductModal = isVisible;
     }
 
+    /// <summary>
+    /// Handles when a new product is saved
+    /// </summary>
     private void OnProductSaved(Product newProduct)
     {
-        // Add the new product to the list with a mock ID
-        newProduct.Id = mockProducts.Max(p => p.Id) + 1;
-        newProduct.DataCriacao = DateTime.Now;
-        newProduct.DataAtualizacao = DateTime.Now;
-        mockProducts.Add(newProduct);
+        // Reload products to show the new one
+        _ = LoadProductsAsync();
     }
     
+    /// <summary>
+    /// Toggles the filter submenu visibility
+    /// </summary>
     private void ToggleFilterSubMenu()
     {
         showFilterSubMenu = !showFilterSubMenu;
     }
     
+    /// <summary>
+    /// Handles filter submenu visibility changes
+    /// </summary>
     private void OnFilterSubMenuVisibilityChanged(bool isVisible)
     {
         showFilterSubMenu = isVisible;
     }
     
-    private void OnFilterChanged(ProductFilterOptions filterOptions)
+    /// <summary>
+    /// Handles filter changes and reloads products
+    /// </summary>
+    private async Task OnFilterChanged(ProductFilterOptions filterOptions)
     {
         currentFilter = filterOptions;
-        // Here you can implement the filtering logic for products
-        // For example: apply filters to the mockProducts list
-        StateHasChanged();
+        await LoadProductsAsync();
     }
     
+    /// <summary>
+    /// Views product details
+    /// </summary>
+    private void ViewProduct(int productId)
+    {
+        // TODO: Implement product details view
+        Console.WriteLine($"View product: {productId}");
+    }
+    
+    /// <summary>
+    /// Edits a product
+    /// </summary>
+    private void EditProduct(int productId)
+    {
+        // TODO: Implement product editing
+        Console.WriteLine($"Edit product: {productId}");
+    }
+    
+    /// <summary>
+    /// Deletes a product with confirmation
+    /// </summary>
+    private async Task DeleteProduct(int productId)
+    {
+        // TODO: Add confirmation dialog
+        var confirmed = true; // For now, assume confirmed
+        
+        if (confirmed)
+        {
+            try
+            {
+                var success = await ProductService.DeleteProductAsync(productId);
+                if (success)
+                {
+                    await LoadProductsAsync(); // Reload products
+                }
+                else
+                {
+                    Console.WriteLine("Failed to delete product");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error deleting product: {ex.Message}");
+            }
+        }
+    }
+    
+    /// <summary>
+    /// Gets the display name for TipoItem enum
+    /// </summary>
     private string GetTipoItemDisplayName(TipoItem tipo)
     {
         return tipo switch
