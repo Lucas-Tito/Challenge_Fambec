@@ -18,7 +18,12 @@ namespace Challenge_Fambec.Shared.Models
         public string? DescrItem { get; set; }
         
         /// <summary>
-        /// Filter by item type
+        /// Filter by item types (multiple selection allowed)
+        /// </summary>
+        public List<TipoItem> TipoItems { get; set; } = new();
+        
+        /// <summary>
+        /// Filter by item type (for backward compatibility)
         /// </summary>
         public TipoItem? TipoItem { get; set; }
         

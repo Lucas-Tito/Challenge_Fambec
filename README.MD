@@ -48,7 +48,7 @@ sudo docker stop $(sudo docker ps -aq --filter "name=challenge-fambec")
 ## 🔎 List Mock Partners
 
 ```bash
-curl http://localhost:5001/api/partners | jq '.'
+curl http://localhost:5214/api/products/1
 ```
 
 ## SQLCMD
