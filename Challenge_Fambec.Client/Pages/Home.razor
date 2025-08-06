@@ -123,9 +123,16 @@
                      IsVisibleChanged="@OnProductDetailsModalVisibilityChanged" 
                      ProductId="@selectedProductId" />
 
+<!-- Edit Product Modal -->
+<EditProductModal IsVisible="@showEditProductModal" 
+                  IsVisibleChanged="@OnEditProductModalVisibilityChanged" 
+                  ProductId="@selectedProductId"
+                  OnProductUpdated="@OnProductUpdated" />
+
 @code {
     private bool showNewProductModal = false;
     private bool showProductDetailsModal = false;
+    private bool showEditProductModal = false;
     private bool showFilterSubMenu = false;
     private bool isLoading = true;
     private int selectedProductId = 0;
@@ -262,8 +269,29 @@
     /// </summary>
     private void EditProduct(int productId)
     {
-        // TODO: Implement product editing
-        Console.WriteLine($"Edit product: {productId}");
+        selectedProductId = productId;
+        showEditProductModal = true;
+    }
+    
+    /// <summary>
+    /// Handles edit product modal visibility changes
+    /// </summary>
+    private void OnEditProductModalVisibilityChanged(bool isVisible)
+    {
+        showEditProductModal = isVisible;
+        if (!isVisible)
+        {
+            selectedProductId = 0;
+        }
+    }
+    
+    /// <summary>
+    /// Handles when a product is updated
+    /// </summary>
+    private void OnProductUpdated(Product updatedProduct)
+    {
+        // Reload products to show the updated data
+        _ = LoadProductsAsync();
     }
     
     /// <summary>

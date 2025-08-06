@@ -1,0 +1,490 @@
+@using Challenge_Fambec.Shared.Models.Entities
+@using Challenge_Fambec.Shared.Models.Enums
+@using Challenge_Fambec.Shared.Models.DTOs
+@using Challenge_Fambec.Client.Services
+@inject IProductService ProductService
+
+<style>
+    .modal.show {
+        display: block !important;
+    }
+    
+    .modal-backdrop.show {
+        opacity: 0.5;
+    }
+</style>
+
+<div class="modal fade @(IsVisible ? "show" : "")" style="display: @(IsVisible ? "block" : "none");" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Edit Product</h5>
+                <button type="button" class="btn-close" @onclick="CloseModal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                @if (isLoading)
+                {
+                    <div class="text-center py-4">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <div class="mt-2">Loading product...</div>
+                    </div>
+                }
+                else if (!string.IsNullOrEmpty(errorMessage))
+                {
+                    <div class="alert alert-danger" role="alert">
+                        @errorMessage
+                    </div>
+                }
+                else if (!string.IsNullOrEmpty(successMessage))
+                {
+                    <div class="alert alert-success" role="alert">
+                        @successMessage
+                    </div>
+                }
+                else if (EditProduct != null)
+                {
+                    <form>
+                        <div class="row">
+                            <!-- Item Code (Read-only) -->
+                            <div class="col-md-6 mb-3">
+                                <label for="codItem" class="form-label">Item Code</label>
+                                <input type="text" class="form-control" 
+                                       id="codItem" value="@EditProduct.CodItem" readonly 
+                                       style="background-color: #f8f9fa; cursor: not-allowed;" />
+                                <div class="form-text">Item code cannot be changed after creation.</div>
+                            </div>
+
+                            <!-- Description -->
+                            <div class="col-md-6 mb-3">
+                                <label for="descrItem" class="form-label">Description *</label>
+                                <input type="text" class="form-control @(HasValidationError("DescrItem") ? "is-invalid" : "")" 
+                                       id="descrItem" @bind="EditProduct.DescrItem" required />
+                                @if (HasValidationError("DescrItem"))
+                                {
+                                    <div class="invalid-feedback">@GetValidationError("DescrItem")</div>
+                                }
+                            </div>
+
+                            <!-- Barcode -->
+                            <div class="col-md-6 mb-3">
+                                <label for="codBarra" class="form-label">Barcode</label>
+                                <input type="text" class="form-control @(HasValidationError("CodBarra") ? "is-invalid" : "")" 
+                                       id="codBarra" @bind="EditProduct.CodBarra" />
+                                @if (HasValidationError("CodBarra"))
+                                {
+                                    <div class="invalid-feedback">@GetValidationError("CodBarra")</div>
+                                }
+                            </div>
+
+                            <!-- Previous Item Code -->
+                            <div class="col-md-6 mb-3">
+                                <label for="codAntItem" class="form-label">Previous Item Code</label>
+                                <input type="text" class="form-control @(HasValidationError("CodAntItem") ? "is-invalid" : "")" 
+                                       id="codAntItem" @bind="EditProduct.CodAntItem" maxlength="60" />
+                                @if (HasValidationError("CodAntItem"))
+                                {
+                                    <div class="invalid-feedback">@GetValidationError("CodAntItem")</div>
+                                }
+                            </div>
+
+                            <!-- Inventory Unit -->
+                            <div class="col-md-6 mb-3">
+                                <label for="unidInv" class="form-label">Inventory Unit *</label>
+                                <select class="form-select @(HasValidationError("UnidInv") ? "is-invalid" : "")" 
+                                        id="unidInv" @bind="EditProduct.UnidInv" required>
+                                    <option value="">Select unit</option>
+                                    <option value="PC">PC - Piece</option>
+                                    <option value="KG">KG - Kilogram</option>
+                                    <option value="LT">LT - Liter</option>
+                                    <option value="MT">MT - Meter</option>
+                                    <option value="UN">UN - Unit</option>
+                                    <option value="CX">CX - Box</option>
+                                </select>
+                                @if (HasValidationError("UnidInv"))
+                                {
+                                    <div class="invalid-feedback">@GetValidationError("UnidInv")</div>
+                                }
+                            </div>
+
+                            <!-- Item Type -->
+                            <div class="col-md-6 mb-3">
+                                <label for="tipoItem" class="form-label">Item Type *</label>
+                                <select class="form-select @(HasValidationError("TipoItem") ? "is-invalid" : "")" 
+                                        id="tipoItem" @bind="SelectedTipoItem" required>
+                                    <option value="">Select type</option>
+                                    @foreach (var tipo in Enum.GetValues<TipoItem>())
+                                    {
+                                        <option value="@tipo">@GetTipoItemDisplayName(tipo)</option>
+                                    }
+                                </select>
+                                @if (HasValidationError("TipoItem"))
+                                {
+                                    <div class="invalid-feedback">@GetValidationError("TipoItem")</div>
+                                }
+                            </div>
+
+                            <!-- NCM Code -->
+                            <div class="col-md-6 mb-3">
+                                <label for="codNcm" class="form-label">NCM Code</label>
+                                <input type="text" class="form-control @(HasValidationError("CodNcm") ? "is-invalid" : "")" 
+                                       id="codNcm" @bind="EditProduct.CodNcm" maxlength="8" />
+                                @if (HasValidationError("CodNcm"))
+                                {
+                                    <div class="invalid-feedback">@GetValidationError("CodNcm")</div>
+                                }
+                            </div>
+
+                            <!-- IPI Exception -->
+                            <div class="col-md-6 mb-3">
+                                <label for="exIpi" class="form-label">IPI Exception</label>
+                                <input type="text" class="form-control @(HasValidationError("ExIpi") ? "is-invalid" : "")" 
+                                       id="exIpi" @bind="EditProduct.ExIpi" maxlength="3" />
+                                @if (HasValidationError("ExIpi"))
+                                {
+                                    <div class="invalid-feedback">@GetValidationError("ExIpi")</div>
+                                }
+                            </div>
+
+                            <!-- Genre Code -->
+                            <div class="col-md-6 mb-3">
+                                <label for="codGen" class="form-label">Genre Code</label>
+                                <input type="text" class="form-control @(HasValidationError("CodGen") ? "is-invalid" : "")" 
+                                       id="codGen" @bind="EditProduct.CodGen" maxlength="2" />
+                                @if (HasValidationError("CodGen"))
+                                {
+                                    <div class="invalid-feedback">@GetValidationError("CodGen")</div>
+                                }
+                            </div>
+
+                            <!-- Service List Code -->
+                            <div class="col-md-6 mb-3">
+                                <label for="codLst" class="form-label">Service List Code</label>
+                                <input type="text" class="form-control @(HasValidationError("CodLst") ? "is-invalid" : "")" 
+                                       id="codLst" @bind="EditProduct.CodLst" maxlength="5" />
+                                @if (HasValidationError("CodLst"))
+                                {
+                                    <div class="invalid-feedback">@GetValidationError("CodLst")</div>
+                                }
+                            </div>
+
+                            <!-- ICMS Rate -->
+                            <div class="col-md-6 mb-3">
+                                <label for="aliqIcms" class="form-label">ICMS Rate (%)</label>
+                                <input type="number" class="form-control @(HasValidationError("AliqIcms") ? "is-invalid" : "")" 
+                                       id="aliqIcms" @bind="EditProduct.AliqIcms" step="0.01" min="0" max="100" />
+                                @if (HasValidationError("AliqIcms"))
+                                {
+                                    <div class="invalid-feedback">@GetValidationError("AliqIcms")</div>
+                                }
+                            </div>
+                        </div>
+                    </form>
+                }
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" @onclick="CloseModal" disabled="@isSaving">Cancel</button>
+                <button type="button" class="btn btn-primary" @onclick="SaveProduct" disabled="@(!IsFormValid() || isSaving)">
+                    @if (isSaving)
+                    {
+                        <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                        <span>Saving...</span>
+                    }
+                    else
+                    {
+                        <span>Save Changes</span>
+                    }
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@if (IsVisible)
+{
+    <div class="modal-backdrop fade show"></div>
+}
+
+@code {
+    [Parameter] public bool IsVisible { get; set; }
+    [Parameter] public Action<bool>? IsVisibleChanged { get; set; }
+    [Parameter] public int ProductId { get; set; }
+    [Parameter] public Action<Product>? OnProductUpdated { get; set; }
+
+    private Product? EditProduct;
+    private bool isLoading = false;
+    private bool isSaving = false;
+    private string errorMessage = string.Empty;
+    private string successMessage = string.Empty;
+    private Dictionary<string, string> validationErrors = new Dictionary<string, string>();
+    
+    // Helper property for TipoItem binding
+    private string? SelectedTipoItem
+    {
+        get => EditProduct?.TipoItem.ToString();
+        set
+        {
+            if (EditProduct == null || string.IsNullOrEmpty(value))
+            {
+                return;
+            }
+            if (Enum.TryParse<TipoItem>(value, out var tipoItem))
+            {
+                EditProduct.TipoItem = tipoItem;
+            }
+        }
+    }
+
+    /// <summary>
+    /// Called when the component parameters are set
+    /// </summary>
+    protected override async Task OnParametersSetAsync()
+    {
+        if (IsVisible && ProductId > 0 && (EditProduct == null || EditProduct.Id != ProductId))
+        {
+            await LoadProductAsync();
+        }
+    }
+
+    /// <summary>
+    /// Loads product details for editing
+    /// </summary>
+    private async Task LoadProductAsync()
+    {
+        if (ProductId <= 0) return;
+
+        isLoading = true;
+        ClearMessages();
+        StateHasChanged();
+
+        try
+        {
+            EditProduct = await ProductService.GetProductByIdAsync(ProductId);
+            
+            if (EditProduct == null)
+            {
+                errorMessage = "Product not found.";
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"An error occurred while loading product: {ex.Message}";
+            Console.WriteLine($"Error loading product for edit: {ex.Message}");
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    /// <summary>
+    /// Closes the modal and resets form state
+    /// </summary>
+    private void CloseModal()
+    {
+        IsVisible = false;
+        IsVisibleChanged?.Invoke(IsVisible);
+        ResetForm();
+    }
+
+    /// <summary>
+    /// Saves the updated product to the backend via API call
+    /// </summary>
+    private async Task SaveProduct()
+    {
+        if (isSaving || EditProduct == null) return;
+
+        // Clear previous messages and validation errors
+        ClearMessages();
+        
+        // Validate form
+        if (!ValidateForm())
+        {
+            return;
+        }
+
+        isSaving = true;
+        StateHasChanged();
+
+        try
+        {
+            // Convert Product to UpdateProductRequest
+            var updateRequest = new UpdateProductRequest
+            {
+                DescrItem = EditProduct.DescrItem?.Trim() ?? string.Empty,
+                CodBarra = string.IsNullOrWhiteSpace(EditProduct.CodBarra) ? null : EditProduct.CodBarra.Trim(),
+                CodAntItem = string.IsNullOrWhiteSpace(EditProduct.CodAntItem) ? null : EditProduct.CodAntItem.Trim(),
+                UnidInv = EditProduct.UnidInv?.Trim() ?? string.Empty,
+                TipoItem = EditProduct.TipoItem,
+                CodNcm = string.IsNullOrWhiteSpace(EditProduct.CodNcm) ? null : EditProduct.CodNcm.Trim(),
+                ExIpi = string.IsNullOrWhiteSpace(EditProduct.ExIpi) ? null : EditProduct.ExIpi.Trim(),
+                CodGen = string.IsNullOrWhiteSpace(EditProduct.CodGen) ? null : EditProduct.CodGen.Trim(),
+                CodLst = string.IsNullOrWhiteSpace(EditProduct.CodLst) ? null : EditProduct.CodLst.Trim(),
+                AliqIcms = EditProduct.AliqIcms
+            };
+
+            // Call the service to update the product
+            var updatedProduct = await ProductService.UpdateProductAsync(EditProduct.Id, updateRequest);
+
+            if (updatedProduct != null)
+            {
+                successMessage = $"Product '{updatedProduct.CodItem}' updated successfully!";
+                StateHasChanged();
+                
+                // Wait a moment to show success message
+                await Task.Delay(1500);
+                
+                // Notify parent component
+                OnProductUpdated?.Invoke(updatedProduct);
+                
+                // Close modal
+                CloseModal();
+            }
+            else
+            {
+                errorMessage = "Failed to update product. Please check your input and try again.";
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"An error occurred while updating the product: {ex.Message}";
+            Console.WriteLine($"Error updating product: {ex.Message}");
+        }
+        finally
+        {
+            isSaving = false;
+            StateHasChanged();
+        }
+    }
+
+    /// <summary>
+    /// Resets the form to initial state
+    /// </summary>
+    private void ResetForm()
+    {
+        EditProduct = null;
+        ClearMessages();
+    }
+
+    /// <summary>
+    /// Clears all messages and validation errors
+    /// </summary>
+    private void ClearMessages()
+    {
+        errorMessage = string.Empty;
+        successMessage = string.Empty;
+        validationErrors.Clear();
+    }
+
+    /// <summary>
+    /// Validates the form and populates validation errors
+    /// </summary>
+    private bool ValidateForm()
+    {
+        if (EditProduct == null) return false;
+        
+        validationErrors.Clear();
+
+        // Required field validations
+        if (string.IsNullOrWhiteSpace(EditProduct.DescrItem))
+        {
+            validationErrors["DescrItem"] = "Description is required.";
+        }
+
+        if (string.IsNullOrWhiteSpace(EditProduct.UnidInv))
+        {
+            validationErrors["UnidInv"] = "Inventory Unit is required.";
+        }
+
+        if (string.IsNullOrEmpty(SelectedTipoItem))
+        {
+            validationErrors["TipoItem"] = "Item Type is required.";
+        }
+
+        // Optional field length validations
+        if (!string.IsNullOrWhiteSpace(EditProduct.CodAntItem) && EditProduct.CodAntItem.Length > 60)
+        {
+            validationErrors["CodAntItem"] = "Previous Item Code must not exceed 60 characters.";
+        }
+
+        if (!string.IsNullOrWhiteSpace(EditProduct.CodNcm) && EditProduct.CodNcm.Length != 8)
+        {
+            validationErrors["CodNcm"] = "NCM Code must be exactly 8 characters.";
+        }
+
+        if (!string.IsNullOrWhiteSpace(EditProduct.ExIpi) && EditProduct.ExIpi.Length > 3)
+        {
+            validationErrors["ExIpi"] = "IPI Exception must not exceed 3 characters.";
+        }
+
+        if (!string.IsNullOrWhiteSpace(EditProduct.CodGen) && EditProduct.CodGen.Length > 2)
+        {
+            validationErrors["CodGen"] = "Genre Code must not exceed 2 characters.";
+        }
+
+        if (!string.IsNullOrWhiteSpace(EditProduct.CodLst) && EditProduct.CodLst.Length > 5)
+        {
+            validationErrors["CodLst"] = "Service List Code must not exceed 5 characters.";
+        }
+
+        if (EditProduct.AliqIcms.HasValue && (EditProduct.AliqIcms < 0 || EditProduct.AliqIcms > 100))
+        {
+            validationErrors["AliqIcms"] = "ICMS Rate must be between 0 and 100.";
+        }
+
+        return validationErrors.Count == 0;
+    }
+
+    /// <summary>
+    /// Checks if the form has all required fields filled
+    /// </summary>
+    private bool IsFormValid()
+    {
+        if (EditProduct == null) return false;
+        
+        return !string.IsNullOrWhiteSpace(EditProduct.DescrItem) &&
+               !string.IsNullOrWhiteSpace(EditProduct.UnidInv) &&
+               Enum.IsDefined(typeof(TipoItem), EditProduct.TipoItem);
+    }
+
+    /// <summary>
+    /// Checks if a field has validation errors
+    /// </summary>
+    private bool HasValidationError(string fieldName)
+    {
+        return validationErrors.ContainsKey(fieldName);
+    }
+
+    /// <summary>
+    /// Gets the validation error message for a field
+    /// </summary>
+    private string GetValidationError(string fieldName)
+    {
+        return validationErrors.TryGetValue(fieldName, out var error) ? error : string.Empty;
+    }
+
+    /// <summary>
+    /// Gets display name for TipoItem enum values
+    /// </summary>
+    private string GetTipoItemDisplayName(TipoItem tipo)
+    {
+        return tipo switch
+        {
+            TipoItem.MercadoriaParaRevenda => "Merchandise for Resale",
+            TipoItem.MateriaPrima => "Raw Material",
+            TipoItem.Embalagem => "Packaging",
+            TipoItem.ProdutoEmProcesso => "Work in Process",
+            TipoItem.ProdutoAcabado => "Finished Product",
+            TipoItem.Subproduto => "By-product",
+            TipoItem.ProdutoIntermediario => "Intermediate Product",
+            TipoItem.MaterialDeUsoEConsumo => "Supplies and Consumables",
+            TipoItem.AtivoImobilizado => "Fixed Assets",
+            TipoItem.Servicos => "Services",
+            TipoItem.OutrosInsumos => "Other Inputs",
+            TipoItem.Outras => "Others",
+            _ => tipo.ToString()
+        };
+    }
+}
