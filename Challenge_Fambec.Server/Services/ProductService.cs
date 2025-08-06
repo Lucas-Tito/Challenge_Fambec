@@ -32,8 +32,13 @@ namespace Challenge_Fambec.Server.Services
                 query = query.Where(p => p.DescrItem.Contains(filter.DescrItem));
             }
 
-            if (filter.TipoItem.HasValue)
+            if (filter.TipoItems.Any())
             {
+                query = query.Where(p => filter.TipoItems.Contains(p.TipoItem));
+            }
+            else if (filter.TipoItem.HasValue)
+            {
+                // Backward compatibility
                 query = query.Where(p => p.TipoItem == filter.TipoItem.Value);
             }
 
