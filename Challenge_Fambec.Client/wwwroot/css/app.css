@@ -10,6 +10,10 @@
     --color-background: oklch(98.5% 0.002 247.839);
     --color-background-hover: oklch(96.7% 0.003 264.542);
     --shadow-color: oklch(0% 0 0 / 0.1);
+    --color-favorite: oklch(80% 0.15 90);
+    --color-info:oklch(75% 0.1 240);
+    --color-warning:oklch(85% 0.18 80);
+    --color-danger:oklch(65% 0.25 27);
 }
 
 :root.dark {

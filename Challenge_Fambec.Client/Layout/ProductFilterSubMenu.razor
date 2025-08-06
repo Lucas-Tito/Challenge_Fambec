@@ -1,0 +1,114 @@
+@using Challenge_Fambec.Shared.Models.Enums
+
+@if (IsVisible)
+{
+    <div class="filter-submenu position-absolute bg-white border rounded shadow-sm p-3" style="top: 100%; right: 0; min-width: 250px; z-index: 1000;">
+        <div class="mb-3">
+            <h6 class="mb-2">Item Type</h6>
+            @foreach (var tipo in Enum.GetValues<TipoItem>())
+            {
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" 
+                           id="tipo-@tipo" 
+                           checked="@SelectedTypes.Contains(tipo)"
+                           @onchange="@((e) => ToggleType(tipo, e.Value?.ToString() == "true"))" />
+                    <label class="form-check-label" for="tipo-@tipo">
+                        @GetTipoItemDisplayName(tipo)
+                    </label>
+                </div>
+            }
+        </div>
+        
+        <div class="mb-3">
+            <h6 class="mb-2">Inventory Unit</h6>
+            @foreach (var unit in InventoryUnits)
+            {
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" 
+                           id="unit-@unit" 
+                           checked="@SelectedUnits.Contains(unit)"
+                           @onchange="@((e) => ToggleUnit(unit, e.Value?.ToString() == "true"))" />
+                    <label class="form-check-label" for="unit-@unit">
+                        @unit
+                    </label>
+                </div>
+            }
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public bool IsVisible { get; set; }
+    [Parameter] public EventCallback<bool> IsVisibleChanged { get; set; }
+    [Parameter] public EventCallback<ProductFilterOptions> OnFilterChanged { get; set; }
+    
+    private List<TipoItem> SelectedTypes = new();
+    private List<string> SelectedUnits = new();
+    
+    private readonly List<string> InventoryUnits = new()
+    {
+        "PC", "KG", "LT", "MT", "UN", "CX"
+    };
+    
+    private async Task ToggleType(TipoItem tipo, bool isSelected)
+    {
+        if (isSelected && !SelectedTypes.Contains(tipo))
+        {
+            SelectedTypes.Add(tipo);
+        }
+        else if (!isSelected && SelectedTypes.Contains(tipo))
+        {
+            SelectedTypes.Remove(tipo);
+        }
+        
+        await NotifyFilterChanged();
+    }
+    
+    private async Task ToggleUnit(string unit, bool isSelected)
+    {
+        if (isSelected && !SelectedUnits.Contains(unit))
+        {
+            SelectedUnits.Add(unit);
+        }
+        else if (!isSelected && SelectedUnits.Contains(unit))
+        {
+            SelectedUnits.Remove(unit);
+        }
+        
+        await NotifyFilterChanged();
+    }
+    
+    private async Task NotifyFilterChanged()
+    {
+        var filterOptions = new ProductFilterOptions
+        {
+            TipoItem = SelectedTypes.FirstOrDefault(),
+            Tags = new List<string>()
+        };
+        
+        // Add selected units as tags for filtering
+        filterOptions.Tags.AddRange(SelectedUnits);
+        
+        await OnFilterChanged.InvokeAsync(filterOptions);
+    }
+    
+    private string GetTipoItemDisplayName(TipoItem tipo)
+    {
+        return tipo switch
+        {
+            TipoItem.MercadoriaParaRevenda => "Merchandise for Resale",
+            TipoItem.MateriaPrima => "Raw Material",
+            TipoItem.Embalagem => "Packaging",
+            TipoItem.ProdutoEmProcesso => "Work in Process",
+            TipoItem.ProdutoAcabado => "Finished Product",
+            TipoItem.Subproduto => "By-product",
+            TipoItem.ProdutoIntermediario => "Intermediate Product",
+            TipoItem.MaterialDeUsoEConsumo => "Supplies and Consumables",
+            TipoItem.AtivoImobilizado => "Fixed Assets",
+            TipoItem.Servicos => "Services",
+            TipoItem.OutrosInsumos => "Other Inputs",
+            TipoItem.Outras => "Others",
+            _ => tipo.ToString()
+        };
+    }
+}

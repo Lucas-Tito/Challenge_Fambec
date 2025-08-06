@@ -1,4 +1,26 @@
-.PHONY: build up down logs clean health
+.PHONY: build up down logs clean health dev-server dev-client dev-db dev-stop
+
+# Development commands (without Docker)
+dev-db:
+	@echo "Starting SQL Server in Docker for development..."
+	docker-compose up -d sqlserver-only
+
+dev-server:
+	@echo "Starting API server on host..."
+	cd Challenge_Fambec.Server && dotnet watch run --launch-profile http
+
+dev-client:
+	@echo "Starting Blazor client on host..."
+	cd Challenge_Fambec.Client && dotnet watch run --launch-profile http
+
+dev-stop:
+	@echo "Stopping development SQL Server..."
+	docker-compose down
+
+# Full development setup
+dev: dev-db
+	@echo "Starting development environment..."
+	@echo "Run 'make dev-server' in one terminal and 'make dev-client' in another"
 
 # Build all services
 build:

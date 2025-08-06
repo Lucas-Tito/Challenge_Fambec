@@ -12,7 +12,7 @@
         </p>
         <button @onclick="SignInWithGoogle" class="login-google-button">
             Login with Google
-            <GoogleIcon CssClass="width: 1.25rem; height: 1.25rem; stroke: white; display: inline-block; vertical-align: middle;" />
+            <GoogleIcon Style="width: 1.5rem; height: 1.5rem; stroke: white; display: inline-block; vertical-align: middle;" />
         </button>
     </div>
 
@@ -32,11 +32,11 @@
             </div>
             
             <!-- SVGs Cards -->
-            <div style="display: flex; justify-content: space-between; margin-top: 1.5rem;">
+            <div class="cards-row">
                 <div class="cards-container" @onmouseenter="() => ShowGif(0)" @onmouseleave="() => HideGif(0)">
                     <!-- Card -->
                     <div class="card-svg-container @(activeCard == 0 ? "hidden" : "")">
-                        <FastForwardIcon CssClass="width: 5rem; height: 5rem; fill: var(--color-secondary);" />
+                        <FastForwardIcon Style="width: 5rem; height: 5rem; fill: var(--color-secondary);" />
                         <h3 class="card-svg-title">
                             Agility Card
                         </h3>
@@ -51,7 +51,7 @@
                 <div class="cards-container" @onmouseenter="() => ShowGif(1)" @onmouseleave="() => HideGif(1)">
                     <!-- Card -->
                     <div class="card-svg-container @(activeCard == 1 ? "hidden" : "")">
-                        <TeamIcon CssClass="width: 5rem; height: 5rem; stroke: var(--color-secondary);" />
+                        <TeamIcon Style="width: 5rem; height: 5rem; stroke: var(--color-secondary);" />
                         <h3 class="card-svg-title">
                             Collaboration Card
                         </h3>
@@ -66,7 +66,7 @@
                 <div class="cards-container" @onmouseenter="() => ShowGif(2)" @onmouseleave="() => HideGif(2)">
                     <!-- Card -->
                     <div class="card-svg-container @(activeCard == 2 ? "hidden" : "")">
-                        <PaintBrushIcon CssClass="width: 5rem; height: 5rem; stroke: var(--color-secondary);" />
+                        <PaintBrushIcon Style="width: 5rem; height: 5rem; stroke: var(--color-secondary);" />
                         <h3 class="card-svg-title">
                             Customization Card
                         </h3>
