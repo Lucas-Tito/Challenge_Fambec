@@ -63,6 +63,7 @@ public class ProductService : IProductService
         try
         {
             var url = BuildFilterUrl(filter);
+            _logger.LogInformation("Requesting products with URL: {Url}", url);
             var response = await _httpClient.GetAsync(url);
             
             if (response.IsSuccessStatusCode)
@@ -201,8 +202,18 @@ public class ProductService : IProductService
         if (!string.IsNullOrEmpty(filter.DescrItem))
             queryParams.Add($"DescrItem={Uri.EscapeDataString(filter.DescrItem)}");
 
-        if (filter.TipoItem.HasValue)
+        if (filter.TipoItems.Any())
+        {
+            foreach (var tipoItem in filter.TipoItems)
+            {
+                queryParams.Add($"TipoItems={tipoItem}");
+            }
+        }
+        else if (filter.TipoItem.HasValue)
+        {
+            // Backward compatibility
             queryParams.Add($"TipoItem={filter.TipoItem}");
+        }
 
         if (!string.IsNullOrEmpty(filter.UnidInv))
             queryParams.Add($"UnidInv={Uri.EscapeDataString(filter.UnidInv)}");
