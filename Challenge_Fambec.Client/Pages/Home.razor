@@ -118,10 +118,17 @@
                  IsVisibleChanged="@OnModalVisibilityChanged" 
                  OnProductSaved="@OnProductSaved" />
 
+<!-- Product Details Modal -->
+<ProductDetailsModal IsVisible="@showProductDetailsModal" 
+                     IsVisibleChanged="@OnProductDetailsModalVisibilityChanged" 
+                     ProductId="@selectedProductId" />
+
 @code {
     private bool showNewProductModal = false;
+    private bool showProductDetailsModal = false;
     private bool showFilterSubMenu = false;
     private bool isLoading = true;
+    private int selectedProductId = 0;
     private ProductFilterOptions currentFilter = new ProductFilterOptions();
     private List<Product> products = new List<Product>();
     
@@ -234,8 +241,20 @@
     /// </summary>
     private void ViewProduct(int productId)
     {
-        // TODO: Implement product details view
-        Console.WriteLine($"View product: {productId}");
+        selectedProductId = productId;
+        showProductDetailsModal = true;
+    }
+    
+    /// <summary>
+    /// Handles product details modal visibility changes
+    /// </summary>
+    private void OnProductDetailsModalVisibilityChanged(bool isVisible)
+    {
+        showProductDetailsModal = isVisible;
+        if (!isVisible)
+        {
+            selectedProductId = 0;
+        }
     }
     
     /// <summary>
