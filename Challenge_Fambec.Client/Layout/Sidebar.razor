@@ -4,7 +4,6 @@
     @* Panel Toggle Button *@
     <button type="button" @onclick="ToggleSidebar" class="panel-toggle-btn">
         <span class="sr-only">Abrir menu</span>
-        @* Icon placeholder - you'll add your sidebar icon here *@
         <SidebarIcon Style="width: 2.5rem; height: 2.5rem;" />
     </button>
 
@@ -12,10 +11,10 @@
     <aside class="@(isOpen ? "sidebar-panel" : "hidden sidebar-panel")">
         @* Sidebar Header *@
         <div class="sidebar-header">
-            <h2 class="sidebar-header-text">My Boards</h2>
+            <h2 class="sidebar-header-text">Fambec</h2>
             <div class="theme-switcher-container">
                  <div>
-                    <button type="button" @onclick="ToggleTheme" class="theme-switcher-btn">
+                    <button type="button" onclick="window.toggleTheme(); window.updateThemeIcons();" class="theme-switcher-btn" id="theme-toggle">
                         <MoonIcon Style="width: 1.25rem; height: 1.25rem;" />
                         <SunIcon Style="width: 1.25rem; height: 1.25rem; display: none;" />
                     </button>
@@ -47,18 +46,6 @@
     private void ToggleSidebar()
     {
         isOpen = !isOpen;
-    }
-
-    private void ToggleTheme()
-    {
-        // Theme toggle logic - you can implement this later
-        // For now, just a placeholder
-    }
-
-    private void CreateNewBoard()
-    {
-        // New board creation logic - you can implement this later
-        // For now, just a placeholder
     }
 
     private void NavigateToAI()
