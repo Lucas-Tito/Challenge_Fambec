@@ -7,11 +7,12 @@
             <h6 class="mb-2">Item Type</h6>
             @foreach (var tipo in Enum.GetValues<TipoItem>())
             {
+                var isChecked = SelectedTypes.Contains(tipo);
                 <div class="form-check">
                     <input class="form-check-input" type="checkbox" 
                            id="tipo-@tipo" 
-                           checked="@SelectedTypes.Contains(tipo)"
-                           @onchange="@((e) => ToggleType(tipo, e.Value?.ToString() == "true"))" />
+                           checked="@isChecked"
+                           @onchange="@(e => HandleTypeChange(tipo, (bool)e.Value!))" />
                     <label class="form-check-label" for="tipo-@tipo">
                         @GetTipoItemDisplayName(tipo)
                     </label>
@@ -50,15 +51,37 @@
         "PC", "KG", "LT", "MT", "UN", "CX"
     };
     
-    private async Task ToggleType(TipoItem tipo, bool isSelected)
+    private void HandleTypeChange(TipoItem tipo, bool isSelected)
     {
+        Console.WriteLine($"HandleTypeChange called: {tipo} ({(int)tipo}), isSelected: {isSelected}");
+        
         if (isSelected && !SelectedTypes.Contains(tipo))
         {
             SelectedTypes.Add(tipo);
+            Console.WriteLine($"Added {tipo} to SelectedTypes. Count: {SelectedTypes.Count}");
         }
         else if (!isSelected && SelectedTypes.Contains(tipo))
         {
             SelectedTypes.Remove(tipo);
+            Console.WriteLine($"Removed {tipo} from SelectedTypes. Count: {SelectedTypes.Count}");
+        }
+        
+        _ = NotifyFilterChanged();
+    }
+    
+    private async Task ToggleType(TipoItem tipo, bool isSelected)
+    {
+        Console.WriteLine($"ToggleType called: {tipo} ({(int)tipo}), isSelected: {isSelected}");
+        
+        if (isSelected && !SelectedTypes.Contains(tipo))
+        {
+            SelectedTypes.Add(tipo);
+            Console.WriteLine($"Added {tipo} to SelectedTypes. Count: {SelectedTypes.Count}");
+        }
+        else if (!isSelected && SelectedTypes.Contains(tipo))
+        {
+            SelectedTypes.Remove(tipo);
+            Console.WriteLine($"Removed {tipo} from SelectedTypes. Count: {SelectedTypes.Count}");
         }
         
         await NotifyFilterChanged();
@@ -82,9 +105,16 @@
     {
         var filterOptions = new ProductFilterOptions
         {
-            TipoItem = SelectedTypes.FirstOrDefault(),
+            TipoItems = new List<TipoItem>(SelectedTypes),
             Tags = new List<string>()
         };
+        
+        // Debug: log selected types
+        Console.WriteLine($"Selected types count: {SelectedTypes.Count}");
+        foreach (var type in SelectedTypes)
+        {
+            Console.WriteLine($"Selected type: {type} ({(int)type})");
+        }
         
         // Add selected units as tags for filtering
         filterOptions.Tags.AddRange(SelectedUnits);

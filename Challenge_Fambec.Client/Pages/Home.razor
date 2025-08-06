@@ -143,12 +143,18 @@
             {
                 CodItem = currentFilter.CodItem,
                 DescrItem = currentFilter.DescrItem,
-                TipoItem = currentFilter.TipoItem,
+                TipoItems = currentFilter.TipoItems,
                 UnidInv = currentFilter.UnidInv,
                 CodNcm = currentFilter.CodNcm,
                 Page = 1,
                 PageSize = 100 // Load more items for better UX
             };
+            
+            Console.WriteLine($"Filter request TipoItems count: {filterRequest.TipoItems.Count}");
+            foreach (var tipo in filterRequest.TipoItems)
+            {
+                Console.WriteLine($"Filter request TipoItem: {tipo} ({(int)tipo})");
+            }
             
             products = await ProductService.GetProductsAsync(filterRequest);
         }
