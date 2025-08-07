@@ -13,11 +13,16 @@ namespace Challenge_Fambec.Server.Controllers
     public class ProductsController : ControllerBase
     {
         private readonly IProductService _productService;
+        private readonly OpenRouterService _openRouterService;
         private readonly ILogger<ProductsController> _logger;
 
-        public ProductsController(IProductService productService, ILogger<ProductsController> logger)
+        public ProductsController(
+            IProductService productService, 
+            OpenRouterService openRouterService, 
+            ILogger<ProductsController> logger)
         {
             _productService = productService;
+            _openRouterService = openRouterService;
             _logger = logger;
         }
 
@@ -171,6 +176,51 @@ namespace Challenge_Fambec.Server.Controllers
             {
                 _logger.LogError(ex, "Error checking product existence: {CodItem}", codItem);
                 return StatusCode(500, "An error occurred while checking product existence");
+            }
+        }
+
+        /// <summary>
+        /// Generate AI summary for all products
+        /// </summary>
+        [HttpPost("generate-summary")]
+        public async Task<ActionResult<ProductSummaryResponse>> GenerateSummary()
+        {
+            try
+            {
+                _logger.LogInformation("Generating AI summary for all products");
+
+                // Get all products (no filtering)
+                var filter = new ProductFilterRequest { PageSize = int.MaxValue };
+                var products = await _productService.GetProductsAsync(filter);
+
+                _logger.LogInformation("Retrieved {Count} products for summary", products.Count);
+
+                // Generate summary using OpenRouter service
+                var summaryResponse = await _openRouterService.GenerateSummaryAsync(products);
+
+                _logger.LogInformation("OpenRouter service returned: Success={Success}, Error={Error}", 
+                    summaryResponse.Success, summaryResponse.ErrorMessage);
+
+                if (summaryResponse.Success)
+                {
+                    _logger.LogInformation("AI summary generated successfully using model: {Model}", 
+                        summaryResponse.ModelUsed);
+                    return Ok(summaryResponse);
+                }
+                else
+                {
+                    _logger.LogWarning("AI summary generation failed: {Error}", summaryResponse.ErrorMessage);
+                    return BadRequest(summaryResponse);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error generating AI summary");
+                return StatusCode(500, new ProductSummaryResponse
+                {
+                    Success = false,
+                    ErrorMessage = "An error occurred while generating the summary"
+                });
             }
         }
     }

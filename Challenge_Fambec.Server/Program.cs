@@ -1,6 +1,16 @@
 using Microsoft.EntityFrameworkCore;
 using Challenge_Fambec.Server.Data;
 using Challenge_Fambec.Server.Services;
+using DotNetEnv;
+
+// Load .env file from project root (one level up from Server directory)
+var projectRoot = Directory.GetParent(Directory.GetCurrentDirectory())?.FullName;
+var envPath = Path.Combine(projectRoot ?? "", ".env");
+
+if (File.Exists(envPath))
+{
+    Env.Load(envPath);
+}
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,6 +28,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 
 // Register services
 builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddHttpClient<OpenRouterService>();
 
 // Add CORS
 builder.Services.AddCors(options =>
