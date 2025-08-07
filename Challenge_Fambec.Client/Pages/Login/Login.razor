@@ -1,6 +1,8 @@
 @page "/login"
-
 @using Challenge_Fambec.Client.Shared
+@using Challenge_Fambec.Client.Services
+@inject IFirebaseAuthService FirebaseAuth
+@inject NavigationManager Navigation
 
 <div class="login-page-container">
     <div style="text-align: center;">
@@ -101,10 +103,35 @@
 
 @code {
     private int activeCard = -1;
+    private bool isLoading = false;
 
-    private void SignInWithGoogle()
+    private async Task SignInWithGoogle()
     {
-        // Implementar lógica de login com Google
+        if (isLoading) return;
+        
+        isLoading = true;
+        try
+        {
+            var result = await FirebaseAuth.SignInWithGoogleAsync();
+            if (result != null)
+            {
+                // Redirect to home page after successful login
+                Navigation.NavigateTo("/");
+            }
+            else
+            {
+                // Handle login failure - could show error message
+                Console.WriteLine("Login failed");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Login error: {ex.Message}");
+        }
+        finally
+        {
+            isLoading = false;
+        }
     }
 
     private void ShowGif(int cardIndex)

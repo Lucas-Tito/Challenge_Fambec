@@ -1,7 +1,8 @@
 @page "/summary"
 @inject IProductService ProductService
 
-<div class="container">
+<AuthGuard>
+    <div class="container">
     <h1 class="summary-title">AI Summary</h1>
     <p class="summary-description">
         Select boards to generate an AI summary
@@ -121,3 +122,4 @@
         StateHasChanged();
     }
 }
+</AuthGuard>

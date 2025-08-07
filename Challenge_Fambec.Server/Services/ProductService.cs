@@ -17,9 +17,9 @@ namespace Challenge_Fambec.Server.Services
             _context = context;
         }
 
-        public async Task<List<Product>> GetProductsAsync(ProductFilterRequest filter)
+        public async Task<List<Product>> GetProductsAsync(int userId, ProductFilterRequest filter)
         {
-            var query = _context.Products.AsQueryable();
+            var query = _context.Products.Where(p => p.UserId == userId);
 
             // Apply filters
             if (!string.IsNullOrWhiteSpace(filter.CodItem))
@@ -65,27 +65,29 @@ namespace Challenge_Fambec.Server.Services
                 .ToListAsync();
         }
 
-        public async Task<Product?> GetProductByIdAsync(int id)
-        {
-            return await _context.Products.FindAsync(id);
-        }
-
-        public async Task<Product?> GetProductByCodItemAsync(string codItem)
+        public async Task<Product?> GetProductByIdAsync(int userId, int id)
         {
             return await _context.Products
-                .FirstOrDefaultAsync(p => p.CodItem == codItem);
+                .FirstOrDefaultAsync(p => p.Id == id && p.UserId == userId);
         }
 
-        public async Task<Product> CreateProductAsync(CreateProductRequest request)
+        public async Task<Product?> GetProductByCodItemAsync(int userId, string codItem)
         {
-            // Check if product with same CodItem already exists
-            if (await ExistsByCodItemAsync(request.CodItem))
+            return await _context.Products
+                .FirstOrDefaultAsync(p => p.CodItem == codItem && p.UserId == userId);
+        }
+
+        public async Task<Product> CreateProductAsync(int userId, CreateProductRequest request)
+        {
+            // Check if product with same CodItem already exists for this user
+            if (await ExistsByCodItemAsync(userId, request.CodItem))
             {
-                throw new InvalidOperationException($"Product with item code '{request.CodItem}' already exists");
+                throw new InvalidOperationException($"Product with item code '{request.CodItem}' already exists for this user");
             }
 
             var product = new Product
             {
+                UserId = userId,
                 CodItem = request.CodItem,
                 DescrItem = request.DescrItem,
                 CodBarra = request.CodBarra,
@@ -107,9 +109,11 @@ namespace Challenge_Fambec.Server.Services
             return product;
         }
 
-        public async Task<Product?> UpdateProductAsync(int id, UpdateProductRequest request)
+        public async Task<Product?> UpdateProductAsync(int userId, int id, UpdateProductRequest request)
         {
-            var product = await _context.Products.FindAsync(id);
+            var product = await _context.Products
+                .FirstOrDefaultAsync(p => p.Id == id && p.UserId == userId);
+            
             if (product == null)
                 return null;
 
@@ -130,9 +134,11 @@ namespace Challenge_Fambec.Server.Services
             return product;
         }
 
-        public async Task<bool> DeleteProductAsync(int id)
+        public async Task<bool> DeleteProductAsync(int userId, int id)
         {
-            var product = await _context.Products.FindAsync(id);
+            var product = await _context.Products
+                .FirstOrDefaultAsync(p => p.Id == id && p.UserId == userId);
+            
             if (product == null)
                 return false;
 
@@ -141,9 +147,10 @@ namespace Challenge_Fambec.Server.Services
             return true;
         }
 
-        public async Task<bool> ExistsByCodItemAsync(string codItem)
+        public async Task<bool> ExistsByCodItemAsync(int userId, string codItem)
         {
-            return await _context.Products.AnyAsync(p => p.CodItem == codItem);
+            return await _context.Products
+                .AnyAsync(p => p.CodItem == codItem && p.UserId == userId);
         }
     }
 }
