@@ -12,7 +12,12 @@ var baseAddress = builder.HostEnvironment.IsDevelopment()
     ? new Uri("http://localhost:5214/")
     : new Uri(builder.HostEnvironment.BaseAddress);
 
-builder.Services.AddScoped(sp => new HttpClient { BaseAddress = baseAddress });
+// Configure HttpClient with longer timeout for AI operations
+builder.Services.AddScoped(sp => new HttpClient 
+{ 
+    BaseAddress = baseAddress,
+    Timeout = TimeSpan.FromMinutes(5) // 5 minutes timeout for AI operations
+});
 
 // Register services
 builder.Services.AddScoped<IProductService, ProductService>();

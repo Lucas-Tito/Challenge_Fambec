@@ -41,6 +41,11 @@ public interface IProductService
     /// Checks if a product exists by item code
     /// </summary>
     Task<bool> ExistsByCodItemAsync(string codItem);
+    
+    /// <summary>
+    /// Generates AI summary for all products
+    /// </summary>
+    Task<ProductSummaryResponse> GenerateSummaryAsync();
 }
 
 /// <summary>
@@ -181,6 +186,44 @@ public class ProductService : IProductService
         {
             _logger.LogError(ex, "Error checking if product exists {CodItem}", codItem);
             return false;
+        }
+    }
+
+    public async Task<ProductSummaryResponse> GenerateSummaryAsync()
+    {
+        try
+        {
+            _logger.LogInformation("Requesting AI summary generation");
+            var response = await _httpClient.PostAsync($"{BaseUrl}/generate-summary", null);
+            
+            if (response.IsSuccessStatusCode)
+            {
+                var summary = await response.Content.ReadFromJsonAsync<ProductSummaryResponse>();
+                return summary ?? new ProductSummaryResponse 
+                { 
+                    Success = false, 
+                    ErrorMessage = "Failed to parse response" 
+                };
+            }
+            
+            var errorContent = await response.Content.ReadAsStringAsync();
+            _logger.LogWarning("Failed to generate summary. Status: {StatusCode}, Error: {Error}", 
+                response.StatusCode, errorContent);
+            
+            return new ProductSummaryResponse
+            {
+                Success = false,
+                ErrorMessage = $"Server error: {response.StatusCode}"
+            };
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error generating AI summary");
+            return new ProductSummaryResponse
+            {
+                Success = false,
+                ErrorMessage = $"Connection error: {ex.Message}"
+            };
         }
     }
 
