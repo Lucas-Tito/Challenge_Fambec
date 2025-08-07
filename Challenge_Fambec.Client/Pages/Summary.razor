@@ -1,0 +1,123 @@
+@page "/summary"
+@inject IProductService ProductService
+
+<div class="container">
+    <h1 class="summary-title">AI Summary</h1>
+    <p class="summary-description">
+        Select boards to generate an AI summary
+    </p>
+
+    <div class="summary-container">
+        <form @onsubmit="HandleGenerateSummary" @onsubmit:preventDefault="true">
+            <fieldset class="fieldset" disabled="@isLoading">
+                <div class="form-row">
+                    <div class="dropdown-container">
+                        <select class="form-select" required disabled>
+                            <option value="">All products</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="submit-button" disabled="@isLoading">
+                        @if (isLoading)
+                        {
+                            <span>Generating...</span>
+                        }
+                        else
+                        {
+                            <span>Generate Summary</span>
+                        }
+                    </button>
+
+                    <!-- Brain Icon Placeholder -->
+                    <div class="icon-container">
+                        <BrainIcon Style="width: 2.7rem; height: 2.7rem; fill: var(--color-tertiary);" />
+                    </div>
+                </div>
+            </fieldset>
+        </form>
+
+        <!-- Summary Response Container -->
+        <div class="summary-response">
+            @if (isLoading)
+            {
+                <div class="loading-message">
+                    <p>🤖 AI is analyzing your product inventory...</p>
+                    <p><small>This may take a few moments</small></p>
+                </div>
+            }
+            else if (summaryResponse != null)
+            {
+                @if (summaryResponse.Success)
+                {
+                    <div class="summary-success">
+                        <h3>📊 Inventory Analysis</h3>
+                        <div class="summary-content">
+                            @foreach (var line in summaryResponse.Summary.Split('\n'))
+                            {
+                                <p>@line</p>
+                            }
+                        </div>
+                        <div class="summary-meta">
+                            <small>
+                                ✅ Generated using @summaryResponse.ModelUsed | 
+                                📦 Analyzed @summaryResponse.TotalProducts products
+                            </small>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <div class="summary-error">
+                        <h3>❌ Error</h3>
+                        <p>@summaryResponse.ErrorMessage</p>
+                        <button @onclick="ClearError" class="retry-button">
+                            Try Again
+                        </button>
+                    </div>
+                }
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    private bool isLoading = false;
+    private ProductSummaryResponse? summaryResponse = null;
+
+    /// <summary>
+    /// Handles the form submission to generate AI summary
+    /// </summary>
+    private async Task HandleGenerateSummary()
+    {
+        isLoading = true;
+        summaryResponse = null;
+        StateHasChanged();
+
+        try
+        {
+            summaryResponse = await ProductService.GenerateSummaryAsync();
+        }
+        catch (Exception ex)
+        {
+            summaryResponse = new ProductSummaryResponse
+            {
+                Success = false,
+                ErrorMessage = $"Unexpected error: {ex.Message}"
+            };
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    /// <summary>
+    /// Clears the error and allows trying again
+    /// </summary>
+    private void ClearError()
+    {
+        summaryResponse = null;
+        StateHasChanged();
+    }
+}
