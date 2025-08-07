@@ -16,5 +16,6 @@ builder.Services.AddScoped(sp => new HttpClient { BaseAddress = baseAddress });
 
 // Register services
 builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddScoped<IThemeService, ThemeService>();
 
 await builder.Build().RunAsync();

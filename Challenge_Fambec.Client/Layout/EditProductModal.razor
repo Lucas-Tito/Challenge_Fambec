@@ -4,19 +4,9 @@
 @using Challenge_Fambec.Client.Services
 @inject IProductService ProductService
 
-<style>
-    .modal.show {
-        display: block !important;
-    }
-    
-    .modal-backdrop.show {
-        opacity: 0.5;
-    }
-</style>
-
 <div class="modal fade @(IsVisible ? "show" : "")" style="display: @(IsVisible ? "block" : "none");" tabindex="-1" role="dialog">
     <div class="modal-dialog modal-lg" role="document">
-        <div class="modal-content">
+        <div class="modal-content modal-container">
             <div class="modal-header">
                 <h5 class="modal-title">Edit Product</h5>
                 <button type="button" class="btn-close" @onclick="CloseModal" aria-label="Close"></button>
@@ -50,16 +40,15 @@
                             <!-- Item Code (Read-only) -->
                             <div class="col-md-6 mb-3">
                                 <label for="codItem" class="form-label">Item Code</label>
-                                <input type="text" class="form-control" 
-                                       id="codItem" value="@EditProduct.CodItem" readonly 
-                                       style="background-color: #f8f9fa; cursor: not-allowed;" />
+                                <input type="text" class="form-control readonly-field info-value" 
+                                       id="codItem" value="@EditProduct.CodItem" readonly />
                                 <div class="form-text">Item code cannot be changed after creation.</div>
                             </div>
 
                             <!-- Description -->
                             <div class="col-md-6 mb-3">
                                 <label for="descrItem" class="form-label">Description *</label>
-                                <input type="text" class="form-control @(HasValidationError("DescrItem") ? "is-invalid" : "")" 
+                                <input type="text" class="form-control modal-input @(HasValidationError("DescrItem") ? "is-invalid" : "")" 
                                        id="descrItem" @bind="EditProduct.DescrItem" required />
                                 @if (HasValidationError("DescrItem"))
                                 {
@@ -70,7 +59,7 @@
                             <!-- Barcode -->
                             <div class="col-md-6 mb-3">
                                 <label for="codBarra" class="form-label">Barcode</label>
-                                <input type="text" class="form-control @(HasValidationError("CodBarra") ? "is-invalid" : "")" 
+                                <input type="text" class="form-control modal-input @(HasValidationError("CodBarra") ? "is-invalid" : "")" 
                                        id="codBarra" @bind="EditProduct.CodBarra" />
                                 @if (HasValidationError("CodBarra"))
                                 {
@@ -81,7 +70,7 @@
                             <!-- Previous Item Code -->
                             <div class="col-md-6 mb-3">
                                 <label for="codAntItem" class="form-label">Previous Item Code</label>
-                                <input type="text" class="form-control @(HasValidationError("CodAntItem") ? "is-invalid" : "")" 
+                                <input type="text" class="form-control modal-input @(HasValidationError("CodAntItem") ? "is-invalid" : "")" 
                                        id="codAntItem" @bind="EditProduct.CodAntItem" maxlength="60" />
                                 @if (HasValidationError("CodAntItem"))
                                 {
@@ -92,7 +81,7 @@
                             <!-- Inventory Unit -->
                             <div class="col-md-6 mb-3">
                                 <label for="unidInv" class="form-label">Inventory Unit *</label>
-                                <select class="form-select @(HasValidationError("UnidInv") ? "is-invalid" : "")" 
+                                <select class="form-select modal-input @(HasValidationError("UnidInv") ? "is-invalid" : "")" 
                                         id="unidInv" @bind="EditProduct.UnidInv" required>
                                     <option value="">Select unit</option>
                                     <option value="PC">PC - Piece</option>
@@ -111,7 +100,7 @@
                             <!-- Item Type -->
                             <div class="col-md-6 mb-3">
                                 <label for="tipoItem" class="form-label">Item Type *</label>
-                                <select class="form-select @(HasValidationError("TipoItem") ? "is-invalid" : "")" 
+                                <select class="form-select modal-input @(HasValidationError("TipoItem") ? "is-invalid" : "")" 
                                         id="tipoItem" @bind="SelectedTipoItem" required>
                                     <option value="">Select type</option>
                                     @foreach (var tipo in Enum.GetValues<TipoItem>())
@@ -128,7 +117,7 @@
                             <!-- NCM Code -->
                             <div class="col-md-6 mb-3">
                                 <label for="codNcm" class="form-label">NCM Code</label>
-                                <input type="text" class="form-control @(HasValidationError("CodNcm") ? "is-invalid" : "")" 
+                                <input type="text" class="form-control modal-input @(HasValidationError("CodNcm") ? "is-invalid" : "")" 
                                        id="codNcm" @bind="EditProduct.CodNcm" maxlength="8" />
                                 @if (HasValidationError("CodNcm"))
                                 {
@@ -139,7 +128,7 @@
                             <!-- IPI Exception -->
                             <div class="col-md-6 mb-3">
                                 <label for="exIpi" class="form-label">IPI Exception</label>
-                                <input type="text" class="form-control @(HasValidationError("ExIpi") ? "is-invalid" : "")" 
+                                <input type="text" class="form-control modal-input @(HasValidationError("ExIpi") ? "is-invalid" : "")" 
                                        id="exIpi" @bind="EditProduct.ExIpi" maxlength="3" />
                                 @if (HasValidationError("ExIpi"))
                                 {
@@ -150,7 +139,7 @@
                             <!-- Genre Code -->
                             <div class="col-md-6 mb-3">
                                 <label for="codGen" class="form-label">Genre Code</label>
-                                <input type="text" class="form-control @(HasValidationError("CodGen") ? "is-invalid" : "")" 
+                                <input type="text" class="form-control modal-input @(HasValidationError("CodGen") ? "is-invalid" : "")" 
                                        id="codGen" @bind="EditProduct.CodGen" maxlength="2" />
                                 @if (HasValidationError("CodGen"))
                                 {
@@ -161,7 +150,7 @@
                             <!-- Service List Code -->
                             <div class="col-md-6 mb-3">
                                 <label for="codLst" class="form-label">Service List Code</label>
-                                <input type="text" class="form-control @(HasValidationError("CodLst") ? "is-invalid" : "")" 
+                                <input type="text" class="form-control modal-input @(HasValidationError("CodLst") ? "is-invalid" : "")" 
                                        id="codLst" @bind="EditProduct.CodLst" maxlength="5" />
                                 @if (HasValidationError("CodLst"))
                                 {
@@ -172,7 +161,7 @@
                             <!-- ICMS Rate -->
                             <div class="col-md-6 mb-3">
                                 <label for="aliqIcms" class="form-label">ICMS Rate (%)</label>
-                                <input type="number" class="form-control @(HasValidationError("AliqIcms") ? "is-invalid" : "")" 
+                                <input type="number" class="form-control modal-input @(HasValidationError("AliqIcms") ? "is-invalid" : "")" 
                                        id="aliqIcms" @bind="EditProduct.AliqIcms" step="0.01" min="0" max="100" />
                                 @if (HasValidationError("AliqIcms"))
                                 {
@@ -184,8 +173,8 @@
                 }
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" @onclick="CloseModal" disabled="@isSaving">Cancel</button>
-                <button type="button" class="btn btn-primary" @onclick="SaveProduct" disabled="@(!IsFormValid() || isSaving)">
+                <button type="button" class="modal-button cancel-button" @onclick="CloseModal" disabled="@isSaving">Cancel</button>
+                <button type="button" class="modal-button" @onclick="SaveProduct" disabled="@(!IsFormValid() || isSaving)">
                     @if (isSaving)
                     {
                         <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>

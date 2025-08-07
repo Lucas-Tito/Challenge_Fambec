@@ -1,0 +1,71 @@
+.readonly-field {
+    background-color: var(--color-surface-hover) !important;
+    border: none;
+    cursor: not-allowed;
+}
+
+.info-value {
+    color: var(--color-secondary);
+}
+
+.empty-value {
+    color: #6c757d;
+    font-style: italic;
+}
+
+.modal.show {
+    display: block !important;
+}
+
+.modal-backdrop.show {
+    opacity: 0.5;
+}
+
+.modal-header{
+    color: var(--color-primary);
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center;
+}
+
+.modal-container{
+    background-color: var(--color-surface);
+    color: var(--color-primary);
+}
+
+.close-modal-btn {
+  color: var(--color-tertiary);
+  border-radius: 0.375rem;
+  cursor: pointer;
+  border: none;
+  background: transparent;
+}
+
+.modal-input{
+    background-color: var(--color-surface);
+    border: var(--bs-border-width) solid var(--color-border);
+    color: var(--color-tertiary);
+}
+
+.modal-button {
+    background-color: var(--color-primary);
+    color:  var(--color-background);
+    font-weight: bold;
+    padding: 0.45rem 1.2rem; 
+    border-radius: 0.5rem; /* 8px */
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    transition: all 0.2s ease-in-out;
+    cursor: pointer;
+    border: none;
+    text-decoration: none;
+}
+
+.modal-button:hover {
+    transform: scale(1.05);
+}
+
+.cancel-button{
+    background-color: var(--color-tertiary);
+    color:  var(--color-background);
+    margin-right: 0.7rem;
+}

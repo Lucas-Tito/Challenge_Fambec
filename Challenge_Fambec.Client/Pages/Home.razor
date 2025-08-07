@@ -12,11 +12,11 @@
 
 <PageTitle>Home</PageTitle>
 
-<div class="container-fluid">
+<div class="container-fluid home-container">
     <div class="row">
         <div class="col-12">
             <div class="d-flex justify-content-between align-items-center mb-4">
-                <h1 class="mb-0">Product List</h1>
+                <h1 class="home-title">Product List</h1>
                 <div class="d-flex gap-2 position-relative">
                     <button type="button" class="btn btn-outline-secondary" title="Filter" 
                             @onclick="ToggleFilterSubMenu"
@@ -28,8 +28,7 @@
                                           IsVisibleChanged="@OnFilterSubMenuVisibilityChanged"
                                           OnFilterChanged="@OnFilterChanged" />
                     
-                    <button type="button" class="btn btn-primary" @onclick="OpenNewProductModal">
-                        <i class="fas fa-plus me-2"></i>
+                    <button class="add-button" @onclick="OpenNewProductModal">
                         Add Product
                     </button>
                 </div>
@@ -37,7 +36,7 @@
             
             <div class="table-responsive">
                 <table class="table table-striped table-hover">
-                    <thead class="table-dark">
+                    <thead class="table-dark table-header">
                         <tr>
                             <th>Item Code</th>
                             <th>Description</th>
@@ -49,13 +48,13 @@
                             <th>Actions</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody class="table-body">
                         @if (isLoading)
                         {
                             <tr>
                                 <td colspan="8" class="text-center py-4">
                                     <div class="spinner-border text-primary" role="status">
-                                        <span class="visually-hidden">Loading...</span>
+                                        <span class="visually-hidden" style="color: var(--color-secondary) !important;">Loading...</span>
                                     </div>
                                     <div class="mt-2">Loading products...</div>
                                 </td>
@@ -64,7 +63,7 @@
                         else if (!products.Any())
                         {
                             <tr>
-                                <td colspan="8" class="text-center py-4 text-muted">
+                                <td colspan="8" class="text-center py-4 text-muted" style="color: var(--color-secondary) !important;">
                                     No products found. Add your first product to get started.
                                 </td>
                             </tr>

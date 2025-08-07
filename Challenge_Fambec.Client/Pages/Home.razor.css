@@ -1,0 +1,42 @@
+.home-container{
+    margin-top: 4rem;
+}
+
+.home-title{
+    color: var(--color-secondary);
+}
+
+.add-button {
+    background-color: var(--color-primary);
+    color:  var(--color-background);
+    font-weight: bold;
+    padding: 0.45rem 1.2rem; 
+    border-radius: 0.5rem; /* 8px */
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    transition: all 0.2s ease-in-out;
+    margin-left: auto;
+    margin-right: auto;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border: none;
+    text-decoration: none;
+}
+
+.add-button:hover {
+    transform: scale(1.05);
+}
+
+.table-header{
+    --bs-table-bg: var(--color-primary);
+    --bs-table-color: var(--color-background);
+}
+
+.table-body{
+    --bs-table-striped-bg: var(--color-surface);
+    --bs-table-bg: var(--color-surface-hover);
+    border-color: var(--color-border);
+    --bs-table-color: var(--color-primary);
+    --bs-table-striped-color: var(--color-secondary);
+}
+
