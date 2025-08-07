@@ -1,0 +1,37 @@
+@page "/summary"
+
+<div class="container">
+    <h1 class="summary-title">AI Summary</h1>
+    <p class="summary-description">
+        Select boards to generate an AI summary
+    </p>
+
+    <div class="summary-container">
+        <form>
+            <fieldset class="fieldset">
+                <div class="form-row">
+                    <div class="dropdown-container">
+                        <select class="form-select" required>
+                            <option value="">All products</option>
+                            <option value="1">All products</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="submit-button">
+                        Generate Summary
+                    </button>
+
+                    <!-- Brain Icon Placeholder -->
+                    <div class="icon-container">
+                        <BrainIcon Style="width: 2.7rem; height: 2.7rem; fill: var(--color-tertiary);" />
+                    </div>
+                </div>
+            </fieldset>
+        </form>
+
+        <!-- Summary Response Container -->
+        <div class="summary-response">
+            <!-- Response will be displayed here -->
+        </div>
+    </div>
+</div>
