@@ -1,0 +1,64 @@
+@using Challenge_Fambec.Client.Services
+@inject IFirebaseAuthService FirebaseAuth
+@inject NavigationManager Navigation
+
+@if (isAuthenticated)
+{
+    @ChildContent
+}
+else if (isLoading)
+{
+    <div style="display: flex; justify-content: center; align-items: center; height: 100vh;">
+        <p>Loading...</p>
+    </div>
+}
+else
+{
+    <div></div>
+}
+
+@code {
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+    
+    private bool isAuthenticated = false;
+    private bool isLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Check authentication status
+        var user = await FirebaseAuth.GetCurrentUserAsync();
+        isAuthenticated = user != null;
+        isLoading = false;
+
+        if (!isAuthenticated)
+        {
+            // Redirect to login page if not authenticated
+            Navigation.NavigateTo("/login");
+        }
+
+        // Listen for auth state changes
+        FirebaseAuth.AuthStateChanged += OnAuthStateChanged;
+    }
+
+    private void OnAuthStateChanged(UserDto? user)
+    {
+        var wasAuthenticated = isAuthenticated;
+        isAuthenticated = user != null;
+
+        if (!isAuthenticated && wasAuthenticated)
+        {
+            // User logged out, redirect to login
+            Navigation.NavigateTo("/login");
+        }
+        else if (isAuthenticated && !wasAuthenticated)
+        {
+            // User logged in, stay on current page
+            StateHasChanged();
+        }
+    }
+
+    public void Dispose()
+    {
+        FirebaseAuth.AuthStateChanged -= OnAuthStateChanged;
+    }
+}

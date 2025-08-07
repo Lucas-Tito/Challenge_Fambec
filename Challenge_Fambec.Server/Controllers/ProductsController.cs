@@ -1,7 +1,9 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using Challenge_Fambec.Shared.Models.DTOs;
 using Challenge_Fambec.Shared.Models.Entities;
 using Challenge_Fambec.Server.Services;
+using System.Security.Claims;
 
 namespace Challenge_Fambec.Server.Controllers
 {
@@ -10,6 +12,7 @@ namespace Challenge_Fambec.Server.Controllers
     /// </summary>
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize] // Require authentication for all product operations
     public class ProductsController : ControllerBase
     {
         private readonly IProductService _productService;
@@ -27,6 +30,19 @@ namespace Challenge_Fambec.Server.Controllers
         }
 
         /// <summary>
+        /// Get current user ID from JWT token
+        /// </summary>
+        private int GetCurrentUserId()
+        {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out int userId))
+            {
+                throw new UnauthorizedAccessException("Invalid user token");
+            }
+            return userId;
+        }
+
+        /// <summary>
         /// Get paginated list of products with optional filtering
         /// </summary>
         [HttpGet]
@@ -34,8 +50,13 @@ namespace Challenge_Fambec.Server.Controllers
         {
             try
             {
-                var products = await _productService.GetProductsAsync(filter);
+                var userId = GetCurrentUserId();
+                var products = await _productService.GetProductsAsync(userId, filter);
                 return Ok(products);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(ex.Message);
             }
             catch (Exception ex)
             {
@@ -52,12 +73,17 @@ namespace Challenge_Fambec.Server.Controllers
         {
             try
             {
-                var product = await _productService.GetProductByIdAsync(id);
+                var userId = GetCurrentUserId();
+                var product = await _productService.GetProductByIdAsync(userId, id);
                 
                 if (product == null)
                     return NotFound($"Product with ID {id} not found");
 
                 return Ok(product);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(ex.Message);
             }
             catch (Exception ex)
             {
@@ -74,12 +100,17 @@ namespace Challenge_Fambec.Server.Controllers
         {
             try
             {
-                var product = await _productService.GetProductByCodItemAsync(codItem);
+                var userId = GetCurrentUserId();
+                var product = await _productService.GetProductByCodItemAsync(userId, codItem);
                 
                 if (product == null)
                     return NotFound($"Product with item code '{codItem}' not found");
 
                 return Ok(product);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(ex.Message);
             }
             catch (Exception ex)
             {
@@ -99,8 +130,13 @@ namespace Challenge_Fambec.Server.Controllers
                 if (!ModelState.IsValid)
                     return BadRequest(ModelState);
 
-                var product = await _productService.CreateProductAsync(request);
+                var userId = GetCurrentUserId();
+                var product = await _productService.CreateProductAsync(userId, request);
                 return CreatedAtAction(nameof(GetProduct), new { id = product.Id }, product);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(ex.Message);
             }
             catch (InvalidOperationException ex)
             {
@@ -125,12 +161,17 @@ namespace Challenge_Fambec.Server.Controllers
                 if (!ModelState.IsValid)
                     return BadRequest(ModelState);
 
-                var product = await _productService.UpdateProductAsync(id, request);
+                var userId = GetCurrentUserId();
+                var product = await _productService.UpdateProductAsync(userId, id, request);
                 
                 if (product == null)
                     return NotFound($"Product with ID {id} not found");
 
                 return Ok(product);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(ex.Message);
             }
             catch (Exception ex)
             {
@@ -147,12 +188,17 @@ namespace Challenge_Fambec.Server.Controllers
         {
             try
             {
-                var deleted = await _productService.DeleteProductAsync(id);
+                var userId = GetCurrentUserId();
+                var deleted = await _productService.DeleteProductAsync(userId, id);
                 
                 if (!deleted)
                     return NotFound($"Product with ID {id} not found");
 
                 return NoContent();
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(ex.Message);
             }
             catch (Exception ex)
             {
@@ -169,8 +215,13 @@ namespace Challenge_Fambec.Server.Controllers
         {
             try
             {
-                var exists = await _productService.ExistsByCodItemAsync(codItem);
+                var userId = GetCurrentUserId();
+                var exists = await _productService.ExistsByCodItemAsync(userId, codItem);
                 return Ok(exists);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(ex.Message);
             }
             catch (Exception ex)
             {
@@ -187,13 +238,14 @@ namespace Challenge_Fambec.Server.Controllers
         {
             try
             {
-                _logger.LogInformation("Generating AI summary for all products");
+                _logger.LogInformation("Generating AI summary for user products");
 
-                // Get all products (no filtering)
+                var userId = GetCurrentUserId();
+                // Get all products for the current user (no filtering)
                 var filter = new ProductFilterRequest { PageSize = int.MaxValue };
-                var products = await _productService.GetProductsAsync(filter);
+                var products = await _productService.GetProductsAsync(userId, filter);
 
-                _logger.LogInformation("Retrieved {Count} products for summary", products.Count);
+                _logger.LogInformation("Retrieved {Count} products for summary for user {UserId}", products.Count, userId);
 
                 // Generate summary using OpenRouter service
                 var summaryResponse = await _openRouterService.GenerateSummaryAsync(products);
@@ -212,6 +264,10 @@ namespace Challenge_Fambec.Server.Controllers
                     _logger.LogWarning("AI summary generation failed: {Error}", summaryResponse.ErrorMessage);
                     return BadRequest(summaryResponse);
                 }
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(ex.Message);
             }
             catch (Exception ex)
             {

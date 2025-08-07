@@ -88,4 +88,15 @@ public class Product
     /// Last update date - Automatically updated whenever record is modified
     /// </summary>
     public DateTime DataAtualizacao { get; set; } = DateTime.UtcNow;
+    
+    /// <summary>
+    /// Foreign key to User entity - Links product to its owner
+    /// </summary>
+    [Required]
+    public int UserId { get; set; }
+    
+    /// <summary>
+    /// Navigation property to User entity
+    /// </summary>
+    public virtual User User { get; set; } = null!;
 }

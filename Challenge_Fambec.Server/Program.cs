@@ -1,4 +1,7 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 using Challenge_Fambec.Server.Data;
 using Challenge_Fambec.Server.Services;
 using DotNetEnv;
@@ -28,14 +31,42 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 
 // Register services
 builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddScoped<IFirebaseAuthService, FirebaseAuthService>();
+builder.Services.AddHttpClient<IFirebaseAuthService, FirebaseAuthService>();
 builder.Services.AddHttpClient<OpenRouterService>();
+
+// Configure JWT Authentication
+var jwtSecret = Environment.GetEnvironmentVariable("JWT_SECRET") ?? "your-secret-key-minimum-32-characters-long";
+var key = Encoding.ASCII.GetBytes(jwtSecret);
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(key),
+            ValidateIssuer = false,
+            ValidateAudience = false,
+            ValidateLifetime = true,
+            ClockSkew = TimeSpan.Zero
+        };
+    });
 
 // Add CORS
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowBlazorWasm", policy =>
     {
-        policy.WithOrigins("https://localhost:5214", "http://localhost:5000", "https://localhost:7179")
+        policy.WithOrigins(
+                "https://localhost:5214", 
+                "http://localhost:5000", 
+                "https://localhost:7179",
+                "http://localhost:5214",
+                "https://localhost:5000",
+                "http://localhost:7000",
+                "https://localhost:7000"
+              )
               .AllowAnyHeader()
               .AllowAnyMethod()
               .AllowCredentials();
@@ -57,6 +88,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseRouting();
 app.UseCors("AllowBlazorWasm");
+app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 app.MapHealthChecks("/health");

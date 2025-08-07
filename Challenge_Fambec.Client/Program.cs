@@ -22,5 +22,6 @@ builder.Services.AddScoped(sp => new HttpClient
 // Register services
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<IThemeService, ThemeService>();
+builder.Services.AddScoped<IFirebaseAuthService, FirebaseAuthService>();
 
 await builder.Build().RunAsync();
