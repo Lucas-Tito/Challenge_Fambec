@@ -3,7 +3,7 @@
 
 @if (IsVisible)
 {
-    <div class="filter-submenu position-absolute bg-white border rounded shadow-sm p-3" style="top: 100%; right: 0; min-width: 250px; z-index: 1000;">
+    <div class="filter-submenu position-absolute border rounded shadow-sm p-3 modal-container" style="top: 100%; right: 0; min-width: 250px; z-index: 1000;">
         <div class="mb-3">
             <h6 class="mb-2">Item Type</h6>
             @foreach (var tipo in Enum.GetValues<TipoItem>())

@@ -3,41 +3,14 @@
 @using Challenge_Fambec.Client.Services
 @inject IProductService ProductService
 
-<style>
-    .modal.show {
-        display: block !important;
-    }
-    
-    .modal-backdrop.show {
-        opacity: 0.5;
-    }
-    
-    .readonly-field {
-        background-color: #f8f9fa !important;
-        cursor: not-allowed;
-    }
-    
-    .info-label {
-        font-weight: 600;
-        color: #495057;
-    }
-    
-    .info-value {
-        color: #212529;
-    }
-    
-    .empty-value {
-        color: #6c757d;
-        font-style: italic;
-    }
-</style>
-
 <div class="modal fade @(IsVisible ? "show" : "")" style="display: @(IsVisible ? "block" : "none");" tabindex="-1" role="dialog">
     <div class="modal-dialog modal-lg" role="document">
-        <div class="modal-content">
+        <div class="modal-content modal-container">
             <div class="modal-header">
                 <h5 class="modal-title">Product Details</h5>
-                <button type="button" class="btn-close" @onclick="CloseModal" aria-label="Close"></button>
+                <button type="button" class="close-modal-btn" @onclick="CloseModal" aria-label="Close">
+                    <CloseIcon Style="width: 1.8rem; height: 1.8rem;" />
+                </button>
             </div>
             <div class="modal-body">
                 @if (isLoading)
@@ -60,30 +33,30 @@
                     <div class="row">
                         <!-- Basic Information Section -->
                         <div class="col-12 mb-4">
-                            <h6 class="text-muted border-bottom pb-2 mb-3">Basic Information</h6>
+                            <h6 class="border-bottom pb-2 mb-3">Basic Information</h6>
                             
                             <div class="row">
                                 <!-- Product ID -->
                                 <div class="col-md-6 mb-3">
-                                    <label class="form-label info-label">Product ID</label>
+                                    <label class="form-label">Product ID</label>
                                     <div class="form-control readonly-field info-value">@Product.Id</div>
                                 </div>
 
                                 <!-- Item Code -->
                                 <div class="col-md-6 mb-3">
-                                    <label class="form-label info-label">Item Code</label>
+                                    <label class="form-label">Item Code</label>
                                     <div class="form-control readonly-field info-value">@Product.CodItem</div>
                                 </div>
 
                                 <!-- Description -->
                                 <div class="col-12 mb-3">
-                                    <label class="form-label info-label">Description</label>
+                                    <label class="form-label">Description</label>
                                     <div class="form-control readonly-field info-value">@Product.DescrItem</div>
                                 </div>
 
                                 <!-- Barcode -->
                                 <div class="col-md-6 mb-3">
-                                    <label class="form-label info-label">Barcode</label>
+                                    <label class="form-label">Barcode</label>
                                     <div class="form-control readonly-field @(string.IsNullOrEmpty(Product.CodBarra) ? "empty-value" : "info-value")">
                                         @(string.IsNullOrEmpty(Product.CodBarra) ? "Not specified" : Product.CodBarra)
                                     </div>
@@ -91,7 +64,7 @@
 
                                 <!-- Previous Item Code -->
                                 <div class="col-md-6 mb-3">
-                                    <label class="form-label info-label">Previous Item Code</label>
+                                    <label class="form-label">Previous Item Code</label>
                                     <div class="form-control readonly-field @(string.IsNullOrEmpty(Product.CodAntItem) ? "empty-value" : "info-value")">
                                         @(string.IsNullOrEmpty(Product.CodAntItem) ? "Not specified" : Product.CodAntItem)
                                     </div>
@@ -101,18 +74,18 @@
 
                         <!-- Classification Section -->
                         <div class="col-12 mb-4">
-                            <h6 class="text-muted border-bottom pb-2 mb-3">Classification</h6>
+                            <h6 class="border-bottom pb-2 mb-3">Classification</h6>
                             
                             <div class="row">
                                 <!-- Inventory Unit -->
                                 <div class="col-md-6 mb-3">
-                                    <label class="form-label info-label">Inventory Unit</label>
+                                    <label class="form-label">Inventory Unit</label>
                                     <div class="form-control readonly-field info-value">@GetInventoryUnitDisplayName(Product.UnidInv)</div>
                                 </div>
 
                                 <!-- Item Type -->
                                 <div class="col-md-6 mb-3">
-                                    <label class="form-label info-label">Item Type</label>
+                                    <label class="form-label">Item Type</label>
                                     <div class="form-control readonly-field info-value">@GetTipoItemDisplayName(Product.TipoItem)</div>
                                 </div>
                             </div>
@@ -120,12 +93,12 @@
 
                         <!-- Tax Information Section -->
                         <div class="col-12 mb-4">
-                            <h6 class="text-muted border-bottom pb-2 mb-3">Tax Information</h6>
+                            <h6 class="border-bottom pb-2 mb-3">Tax Information</h6>
                             
                             <div class="row">
                                 <!-- NCM Code -->
                                 <div class="col-md-6 mb-3">
-                                    <label class="form-label info-label">NCM Code</label>
+                                    <label class="form-label">NCM Code</label>
                                     <div class="form-control readonly-field @(string.IsNullOrEmpty(Product.CodNcm) ? "empty-value" : "info-value")">
                                         @(string.IsNullOrEmpty(Product.CodNcm) ? "Not specified" : Product.CodNcm)
                                     </div>
@@ -133,7 +106,7 @@
 
                                 <!-- ICMS Rate -->
                                 <div class="col-md-6 mb-3">
-                                    <label class="form-label info-label">ICMS Rate (%)</label>
+                                    <label class="form-label">ICMS Rate (%)</label>
                                     <div class="form-control readonly-field @(Product.AliqIcms.HasValue ? "info-value" : "empty-value")">
                                         @if (Product.AliqIcms.HasValue)
                                         {
@@ -148,7 +121,7 @@
 
                                 <!-- IPI Exception -->
                                 <div class="col-md-6 mb-3">
-                                    <label class="form-label info-label">IPI Exception</label>
+                                    <label class="form-label">IPI Exception</label>
                                     <div class="form-control readonly-field @(string.IsNullOrEmpty(Product.ExIpi) ? "empty-value" : "info-value")">
                                         @(string.IsNullOrEmpty(Product.ExIpi) ? "Not specified" : Product.ExIpi)
                                     </div>
@@ -156,7 +129,7 @@
 
                                 <!-- Genre Code -->
                                 <div class="col-md-6 mb-3">
-                                    <label class="form-label info-label">Genre Code</label>
+                                    <label class="form-label">Genre Code</label>
                                     <div class="form-control readonly-field @(string.IsNullOrEmpty(Product.CodGen) ? "empty-value" : "info-value")">
                                         @(string.IsNullOrEmpty(Product.CodGen) ? "Not specified" : Product.CodGen)
                                     </div>
@@ -164,7 +137,7 @@
 
                                 <!-- Service List Code -->
                                 <div class="col-md-6 mb-3">
-                                    <label class="form-label info-label">Service List Code</label>
+                                    <label class="form-label">Service List Code</label>
                                     <div class="form-control readonly-field @(string.IsNullOrEmpty(Product.CodLst) ? "empty-value" : "info-value")">
                                         @(string.IsNullOrEmpty(Product.CodLst) ? "Not specified" : Product.CodLst)
                                     </div>
@@ -174,18 +147,18 @@
 
                         <!-- System Information Section -->
                         <div class="col-12">
-                            <h6 class="text-muted border-bottom pb-2 mb-3">System Information</h6>
+                            <h6 class="border-bottom pb-2 mb-3">System Information</h6>
                             
                             <div class="row">
                                 <!-- Creation Date -->
                                 <div class="col-md-6 mb-3">
-                                    <label class="form-label info-label">Created Date</label>
+                                    <label class="form-label">Created Date</label>
                                     <div class="form-control readonly-field info-value">@Product.DataCriacao.ToString("dd/MM/yyyy HH:mm:ss")</div>
                                 </div>
 
                                 <!-- Last Update Date -->
                                 <div class="col-md-6 mb-3">
-                                    <label class="form-label info-label">Last Updated</label>
+                                    <label class="form-label">Last Updated</label>
                                     <div class="form-control readonly-field info-value">@Product.DataAtualizacao.ToString("dd/MM/yyyy HH:mm:ss")</div>
                                 </div>
                             </div>
@@ -194,7 +167,7 @@
                 }
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" @onclick="CloseModal">Close</button>
+                <button type="button" class="modal-button cancel-button" @onclick="CloseModal">Close</button>
             </div>
         </div>
     </div>
