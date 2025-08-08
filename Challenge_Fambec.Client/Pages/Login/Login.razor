@@ -7,10 +7,10 @@
 <div class="login-page-container">
     <div style="text-align: center;">
         <h1 class="login-title">
-            Login Title
+            Simplify your management today.
         </h1>
         <p class="login-subtitle">
-            Login Subtitle
+            Complete control in the palm of your hand, without the hassle.
         </p>
         <button @onclick="SignInWithGoogle" class="login-google-button">
             Login with Google
@@ -23,12 +23,12 @@
             <div class="feature-cards-section-text-container">
                 <div style="flex: 1;">
                     <h1 class="feature-cards-section-title">
-                        Features Title
+                        Everything you need to manage your products.
                     </h1>
                 </div>
                 <div style="flex: 1;">
                     <p class="feature-cards-section-subtitle">
-                        Features Subtitle
+                        From advanced filtering to artificial intelligence and personalization, get complete control over your management in one place.
                     </p>
                 </div>
             </div>
@@ -38,30 +38,34 @@
                 <div class="cards-container" @onmouseenter="() => ShowGif(0)" @onmouseleave="() => HideGif(0)">
                     <!-- Card -->
                     <div class="card-svg-container @(activeCard == 0 ? "hidden" : "")">
-                        <FastForwardIcon Style="width: 5rem; height: 5rem; fill: var(--color-secondary);" />
+                        <FilterIcon Style="width: 5rem; height: 5rem; stroke: var(--color-secondary);" />
                         <h3 class="card-svg-title">
-                            Agility Card
+                            Filter
                         </h3>
                     </div>
                     
-                    <!-- Hover GIF -->
+                    <!-- Hover Text -->
                     <div class="card-gif-container @(activeCard == 0 ? "" : "hidden")">
-                        @* <img src="agility_gif.gif" alt="Demonstração de agilidade" class="card-gif" /> *@
+                        <p class="card-hover-text">
+                            Quickly find what you need by applying multiple filters and viewing only the relevant products.
+                        </p>
                     </div>
                 </div>
                 
                 <div class="cards-container" @onmouseenter="() => ShowGif(1)" @onmouseleave="() => HideGif(1)">
                     <!-- Card -->
                     <div class="card-svg-container @(activeCard == 1 ? "hidden" : "")">
-                        <TeamIcon Style="width: 5rem; height: 5rem; stroke: var(--color-secondary);" />
+                        <BrainIcon Style="width: 5rem; height: 5rem; fill: var(--color-secondary);" />
                         <h3 class="card-svg-title">
-                            Collaboration Card
+                            A.I Summary
                         </h3>
                     </div>
                     
-                    <!-- Hover GIF -->
+                    <!-- Hover Text -->
                     <div class="card-gif-container @(activeCard == 1 ? "" : "hidden")">
-                        @* <img src="agility_gif.gif" alt="Demonstração de colaboração" class="card-gif" /> *@
+                        <p class="card-hover-text">
+                            Get smart summaries that highlight key points, insights, and recommendations about your products.
+                        </p>
                     </div>
                 </div>
 
@@ -70,32 +74,17 @@
                     <div class="card-svg-container @(activeCard == 2 ? "hidden" : "")">
                         <PaintBrushIcon Style="width: 5rem; height: 5rem; stroke: var(--color-secondary);" />
                         <h3 class="card-svg-title">
-                            Customization Card
+                            Customization
                         </h3>
                     </div>
                     
-                    <!-- Hover GIF -->
+                    <!-- Hover Text -->
                     <div class="card-gif-container @(activeCard == 2 ? "" : "hidden")">
-                        @* <img src="customization_gif.gif" alt="Demonstração de customização" class="card-gif" /> *@
+                        <p class="card-hover-text">
+                            Ajuste a aparência do sistema com temas claros ou escuros, tornando o uso mais confortável para você.
+                        </p>
                     </div>
                 </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- AI GIF Section -->
-    <div class="ai-gif-section">
-        <div class="ai-gif-container">
-            <div class="ai-gif-text-container">
-                <h1 class="ai-gif-title">
-                    AI Feature Title
-                </h1>
-                <p class="ai-gif-subtitle">
-                    AI Feature Description
-                </p>
-            </div>
-            <div style="flex-shrink: 0;">
-                @* <img src="gif_summarize_tasks.gif" alt="Demonstração de UX" class="ai-gif" /> *@
             </div>
         </div>
     </div>

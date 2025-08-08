@@ -19,10 +19,10 @@
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h1 class="home-title">Product List</h1>
                 <div class="d-flex gap-2 position-relative">
-                    <button type="button" class="btn btn-outline-secondary" title="Filter" 
+                    <button type="button" class="btn btn-outline-secondary filter-btn" title="Filter" 
                             @onclick="ToggleFilterSubMenu"
                             style="display: flex; align-items: center; justify-content: center; width: 38px; height: 38px;">
-                        <FilterIcon />
+                        <FilterIcon Style="width: 1.4rem; height: 1.4rem; stroke: var(--color-secondary);"/>
                     </button>
                     
                     <ProductFilterSubMenu IsVisible="@showFilterSubMenu" 
