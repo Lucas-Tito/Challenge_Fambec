@@ -394,6 +394,11 @@
             validationErrors["CodGen"] = "Genre Code must not exceed 2 characters.";
         }
 
+        if (!string.IsNullOrWhiteSpace(NewProduct.CodGen) && !NewProduct.CodGen.All(char.IsDigit))
+        {
+            validationErrors["CodGen"] = "Genre Code must contain only numbers.";
+        }
+
         if (!string.IsNullOrWhiteSpace(NewProduct.CodLst) && NewProduct.CodLst.Length > 5)
         {
             validationErrors["CodLst"] = "Service List Code must not exceed 5 characters.";
