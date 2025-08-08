@@ -157,6 +157,17 @@
                             }
                         </div>
 
+                        <!-- CEST Code -->
+                        <div class="col-md-6 mb-3">
+                            <label for="codCest" class="form-label">CEST Code</label>
+                            <input type="text" class="form-control modal-input @(HasValidationError("CodCest") ? "is-invalid" : "")" 
+                                   id="codCest" @bind="NewProduct.CodCest" maxlength="7"/>
+                            @if (HasValidationError("CodCest"))
+                            {
+                                <div class="invalid-feedback">@GetValidationError("CodCest")</div>
+                            }
+                        </div>
+
                         <!-- ICMS Rate -->
                         <div class="col-md-6 mb-3">
                             <label for="aliqIcms" class="form-label">ICMS Rate (%)</label>
@@ -269,6 +280,7 @@
                 ExIpi = string.IsNullOrWhiteSpace(NewProduct.ExIpi) ? null : NewProduct.ExIpi.Trim(),
                 CodGen = string.IsNullOrWhiteSpace(NewProduct.CodGen) ? null : NewProduct.CodGen.Trim(),
                 CodLst = string.IsNullOrWhiteSpace(NewProduct.CodLst) ? null : NewProduct.CodLst.Trim(),
+                CodCest = string.IsNullOrWhiteSpace(NewProduct.CodCest) ? null : NewProduct.CodCest.Trim(),
                 AliqIcms = NewProduct.AliqIcms
             };
 

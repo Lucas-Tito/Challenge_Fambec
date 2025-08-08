@@ -88,6 +88,18 @@ namespace Challenge_Fambec.Client.Helpers
                 validationErrors["CodLst"] = "Service List Code must not exceed 5 characters.";
             }
 
+            if (!string.IsNullOrWhiteSpace(product.CodCest))
+            {
+                if (product.CodCest.Length != 7)
+                {
+                    validationErrors["CodCest"] = "CEST Code must be exactly 7 digits.";
+                }
+                else if (!product.CodCest.All(char.IsDigit))
+                {
+                    validationErrors["CodCest"] = "CEST Code must contain only numbers.";
+                }
+            }
+
             if (product.AliqIcms.HasValue && (product.AliqIcms < 0 || product.AliqIcms > 100))
             {
                 validationErrors["AliqIcms"] = "ICMS Rate must be between 0 and 100.";

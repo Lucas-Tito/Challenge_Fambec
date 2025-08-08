@@ -63,6 +63,12 @@ public class UpdateProductRequest
     public string? CodLst { get; set; }
     
     /// <summary>
+    /// CEST code - Optional field with exactly 7 digits, stored as string
+    /// </summary>
+    [StringLength(7)]
+    public string? CodCest { get; set; }
+    
+    /// <summary>
     /// ICMS tax rate - Optional decimal field with precision for decimal places
     /// </summary>
     public decimal? AliqIcms { get; set; }

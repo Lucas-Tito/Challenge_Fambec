@@ -142,6 +142,29 @@
                                         @(string.IsNullOrEmpty(Product.CodLst) ? "Not specified" : Product.CodLst)
                                     </div>
                                 </div>
+
+                                <!-- CEST Code -->
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">CEST Code</label>
+                                    <div class="form-control readonly-field @(string.IsNullOrEmpty(Product.CodCest) ? "empty-value" : "info-value")">
+                                        @(string.IsNullOrEmpty(Product.CodCest) ? "Not specified" : Product.CodCest)
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Financial Information Section -->
+                        <div class="col-12 mb-4">
+                            <h6 class="border-bottom pb-2 mb-3">Financial Information</h6>
+                            
+                            <div class="row">
+                                <!-- ICMS Rate -->
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">ICMS Rate (%)</label>
+                                    <div class="form-control readonly-field @(Product.AliqIcms.HasValue ? "info-value" : "empty-value")">
+                                        @(Product.AliqIcms.HasValue ? Product.AliqIcms.Value.ToString("F2") : "Not specified")
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
