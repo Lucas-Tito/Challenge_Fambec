@@ -38,6 +38,7 @@ namespace Challenge_Fambec.Server.Data
                 entity.Property(e => e.ExIpi).HasMaxLength(3);
                 entity.Property(e => e.CodGen).HasMaxLength(2);
                 entity.Property(e => e.CodLst).HasMaxLength(5);
+                entity.Property(e => e.CodCest).HasMaxLength(7);
                 
                 // Decimal precision for ICMS rate
                 entity.Property(e => e.AliqIcms).HasPrecision(5, 2);

@@ -98,6 +98,7 @@ namespace Challenge_Fambec.Server.Services
                 ExIpi = request.ExIpi,
                 CodGen = request.CodGen,
                 CodLst = request.CodLst,
+                CodCest = request.CodCest,
                 AliqIcms = request.AliqIcms,
                 DataCriacao = DateTime.UtcNow,
                 DataAtualizacao = DateTime.UtcNow
@@ -127,6 +128,7 @@ namespace Challenge_Fambec.Server.Services
             product.ExIpi = request.ExIpi;
             product.CodGen = request.CodGen;
             product.CodLst = request.CodLst;
+            product.CodCest = request.CodCest;
             product.AliqIcms = request.AliqIcms;
             product.DataAtualizacao = DateTime.UtcNow;
 
