@@ -6,6 +6,12 @@
     color: var(--color-secondary);
 }
 
+.filter-btn{
+    --bs-btn-border-color: var(--color-secondary);
+    --bs-btn-padding-x: 0;
+    --bs-btn-padding-y: 0;
+}
+
 .add-button {
     background-color: var(--color-primary);
     color:  var(--color-background);
