@@ -145,7 +145,9 @@
 
                         <!-- Service List Code -->
                         <div class="col-md-6 mb-3">
-                            <label for="codLst" class="form-label">Service List Code</label>
+                            <label for="codLst" class="form-label">
+                                Service List Code@(tipoItemSelected && NewProduct.TipoItem == TipoItem.Servicos ? " *" : "")
+                            </label>
                             <input type="text" class="form-control modal-input @(HasValidationError("CodLst") ? "is-invalid" : "")" 
                                    id="codLst" @bind="NewProduct.CodLst" maxlength="5" />
                             @if (HasValidationError("CodLst"))
@@ -169,7 +171,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="modal-button cancel-button" @onclick="CloseModal" disabled="@isLoading">Cancel</button>
-                <button type="button" class="modal-button" @onclick="SaveProduct" disabled="@(!IsFormValid() || isLoading)">
+                <button type="button" class="modal-button" @onclick="SaveProduct" disabled="@isLoading">
                     @if (isLoading)
                     {
                         <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
@@ -200,21 +202,23 @@
     private string errorMessage = string.Empty;
     private string successMessage = string.Empty;
     private Dictionary<string, string> validationErrors = new Dictionary<string, string>();
+    private bool tipoItemSelected = false; // Track if TipoItem was manually selected
     
     // Helper property for TipoItem binding
     private string? SelectedTipoItem
     {
-        get => NewProduct.TipoItem.ToString();
+        get => tipoItemSelected ? NewProduct.TipoItem.ToString() : "";
         set
         {
             if (string.IsNullOrEmpty(value))
             {
-                // Keep default value when no selection
+                tipoItemSelected = false;
                 return;
             }
             if (Enum.TryParse<TipoItem>(value, out var tipoItem))
             {
                 NewProduct.TipoItem = tipoItem;
+                tipoItemSelected = true;
             }
         }
     }
@@ -236,14 +240,15 @@
     {
         if (isLoading) return;
 
-        // Clear previous messages and validation errors
-        ClearMessages();
-        
         // Validate form
         if (!ValidateForm())
         {
+            StateHasChanged(); // Force UI update to show validation errors
             return;
         }
+
+        // Clear previous messages and validation errors only after successful validation
+        ClearMessages();
 
         isLoading = true;
         StateHasChanged();
@@ -313,6 +318,7 @@
     private void ResetForm()
     {
         NewProduct = new Product();
+        tipoItemSelected = false;
         ClearMessages();
     }
 
@@ -353,9 +359,18 @@
             validationErrors["UnidInv"] = "Inventory Unit is required.";
         }
 
-        if (string.IsNullOrEmpty(SelectedTipoItem))
+        if (!tipoItemSelected || string.IsNullOrEmpty(SelectedTipoItem))
         {
             validationErrors["TipoItem"] = "Item Type is required.";
+        }
+
+        // Conditional validation: If item type is Services, Service List Code is required
+        if (tipoItemSelected && NewProduct.TipoItem == TipoItem.Servicos)
+        {
+            if (string.IsNullOrWhiteSpace(NewProduct.CodLst))
+            {
+                validationErrors["CodLst"] = "Service List Code is required when Item Type is Services.";
+            }
         }
 
         // Optional field length validations
@@ -400,7 +415,7 @@
         return !string.IsNullOrWhiteSpace(NewProduct.CodItem) &&
                !string.IsNullOrWhiteSpace(NewProduct.DescrItem) &&
                !string.IsNullOrWhiteSpace(NewProduct.UnidInv) &&
-               Enum.IsDefined(typeof(TipoItem), NewProduct.TipoItem);
+               tipoItemSelected;
     }
 
     /// <summary>
