@@ -2,6 +2,7 @@
 @using Challenge_Fambec.Shared.Models.Enums
 @using Challenge_Fambec.Shared.Models.DTOs
 @using Challenge_Fambec.Client.Services
+@using Challenge_Fambec.Client.Helpers
 @inject IProductService ProductService
 
 <div class="modal fade @(IsVisible ? "show" : "")" style="display: @(IsVisible ? "block" : "none");" tabindex="-1" role="dialog">
@@ -101,7 +102,7 @@
                                 <option value="">Select type</option>
                                 @foreach (var tipo in Enum.GetValues<TipoItem>())
                                 {
-                                    <option value="@tipo">@GetTipoItemDisplayName(tipo)</option>
+                                    <option value="@tipo">@ProductValidationHelper.GetTipoItemDisplayName(tipo)</option>
                                 }
                             </select>
                             @if (HasValidationError("TipoItem"))
@@ -146,7 +147,7 @@
                         <!-- Service List Code -->
                         <div class="col-md-6 mb-3">
                             <label for="codLst" class="form-label">
-                                Service List Code@(tipoItemSelected && NewProduct.TipoItem == TipoItem.Servicos ? " *" : "")
+                                Service List Code@(tipoItemSelected && ProductValidationHelper.IsServiceListCodeRequired(NewProduct.TipoItem) ? " *" : "")
                             </label>
                             <input type="text" class="form-control modal-input @(HasValidationError("CodLst") ? "is-invalid" : "")" 
                                    id="codLst" @bind="NewProduct.CodLst" maxlength="5" />
@@ -337,78 +338,7 @@
     /// </summary>
     private bool ValidateForm()
     {
-        validationErrors.Clear();
-
-        // Required field validations
-        if (string.IsNullOrWhiteSpace(NewProduct.CodItem))
-        {
-            validationErrors["CodItem"] = "Item Code is required.";
-        }
-        else if (NewProduct.CodItem.Length > 60)
-        {
-            validationErrors["CodItem"] = "Item Code must not exceed 60 characters.";
-        }
-
-        if (string.IsNullOrWhiteSpace(NewProduct.DescrItem))
-        {
-            validationErrors["DescrItem"] = "Description is required.";
-        }
-
-        if (string.IsNullOrWhiteSpace(NewProduct.UnidInv))
-        {
-            validationErrors["UnidInv"] = "Inventory Unit is required.";
-        }
-
-        if (!tipoItemSelected || string.IsNullOrEmpty(SelectedTipoItem))
-        {
-            validationErrors["TipoItem"] = "Item Type is required.";
-        }
-
-        // Conditional validation: If item type is Services, Service List Code is required
-        if (tipoItemSelected && NewProduct.TipoItem == TipoItem.Servicos)
-        {
-            if (string.IsNullOrWhiteSpace(NewProduct.CodLst))
-            {
-                validationErrors["CodLst"] = "Service List Code is required when Item Type is Services.";
-            }
-        }
-
-        // Optional field length validations
-        if (!string.IsNullOrWhiteSpace(NewProduct.CodAntItem) && NewProduct.CodAntItem.Length > 60)
-        {
-            validationErrors["CodAntItem"] = "Previous Item Code must not exceed 60 characters.";
-        }
-
-        if (!string.IsNullOrWhiteSpace(NewProduct.CodNcm) && NewProduct.CodNcm.Length != 8)
-        {
-            validationErrors["CodNcm"] = "NCM Code must be exactly 8 characters.";
-        }
-
-        if (!string.IsNullOrWhiteSpace(NewProduct.ExIpi) && NewProduct.ExIpi.Length > 3)
-        {
-            validationErrors["ExIpi"] = "IPI Exception must not exceed 3 characters.";
-        }
-
-        if (!string.IsNullOrWhiteSpace(NewProduct.CodGen) && NewProduct.CodGen.Length > 2)
-        {
-            validationErrors["CodGen"] = "Genre Code must not exceed 2 characters.";
-        }
-
-        if (!string.IsNullOrWhiteSpace(NewProduct.CodGen) && !NewProduct.CodGen.All(char.IsDigit))
-        {
-            validationErrors["CodGen"] = "Genre Code must contain only numbers.";
-        }
-
-        if (!string.IsNullOrWhiteSpace(NewProduct.CodLst) && NewProduct.CodLst.Length > 5)
-        {
-            validationErrors["CodLst"] = "Service List Code must not exceed 5 characters.";
-        }
-
-        if (NewProduct.AliqIcms.HasValue && (NewProduct.AliqIcms < 0 || NewProduct.AliqIcms > 100))
-        {
-            validationErrors["AliqIcms"] = "ICMS Rate must be between 0 and 100.";
-        }
-
+        validationErrors = ProductValidationHelper.ValidateProduct(NewProduct, isCreating: true, tipoItemSelected);
         return validationErrors.Count == 0;
     }
 
@@ -417,10 +347,7 @@
     /// </summary>
     private bool IsFormValid()
     {
-        return !string.IsNullOrWhiteSpace(NewProduct.CodItem) &&
-               !string.IsNullOrWhiteSpace(NewProduct.DescrItem) &&
-               !string.IsNullOrWhiteSpace(NewProduct.UnidInv) &&
-               tipoItemSelected;
+        return ProductValidationHelper.IsValidForCreation(NewProduct, tipoItemSelected);
     }
 
     /// <summary>
@@ -437,28 +364,5 @@
     private string GetValidationError(string fieldName)
     {
         return validationErrors.TryGetValue(fieldName, out var error) ? error : string.Empty;
-    }
-
-    /// <summary>
-    /// Gets display name for TipoItem enum values
-    /// </summary>
-    private string GetTipoItemDisplayName(TipoItem tipo)
-    {
-        return tipo switch
-        {
-            TipoItem.MercadoriaParaRevenda => "Merchandise for Resale",
-            TipoItem.MateriaPrima => "Raw Material",
-            TipoItem.Embalagem => "Packaging",
-            TipoItem.ProdutoEmProcesso => "Work in Process",
-            TipoItem.ProdutoAcabado => "Finished Product",
-            TipoItem.Subproduto => "By-product",
-            TipoItem.ProdutoIntermediario => "Intermediate Product",
-            TipoItem.MaterialDeUsoEConsumo => "Supplies and Consumables",
-            TipoItem.AtivoImobilizado => "Fixed Assets",
-            TipoItem.Servicos => "Services",
-            TipoItem.OutrosInsumos => "Other Inputs",
-            TipoItem.Outras => "Others",
-            _ => tipo.ToString()
-        };
     }
 }

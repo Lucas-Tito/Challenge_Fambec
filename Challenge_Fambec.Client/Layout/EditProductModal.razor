@@ -2,6 +2,7 @@
 @using Challenge_Fambec.Shared.Models.Enums
 @using Challenge_Fambec.Shared.Models.DTOs
 @using Challenge_Fambec.Client.Services
+@using Challenge_Fambec.Client.Helpers
 @inject IProductService ProductService
 
 <div class="modal fade @(IsVisible ? "show" : "")" style="display: @(IsVisible ? "block" : "none");" tabindex="-1" role="dialog">
@@ -105,7 +106,7 @@
                                     <option value="">Select type</option>
                                     @foreach (var tipo in Enum.GetValues<TipoItem>())
                                     {
-                                        <option value="@tipo">@GetTipoItemDisplayName(tipo)</option>
+                                        <option value="@tipo">@ProductValidationHelper.GetTipoItemDisplayName(tipo)</option>
                                     }
                                 </select>
                                 @if (HasValidationError("TipoItem"))
@@ -149,7 +150,9 @@
 
                             <!-- Service List Code -->
                             <div class="col-md-6 mb-3">
-                                <label for="codLst" class="form-label">Service List Code</label>
+                                <label for="codLst" class="form-label">
+                                    Service List Code@(EditProduct != null && ProductValidationHelper.IsServiceListCodeRequired(EditProduct.TipoItem) ? " *" : "")
+                                </label>
                                 <input type="text" class="form-control modal-input @(HasValidationError("CodLst") ? "is-invalid" : "")" 
                                        id="codLst" @bind="EditProduct.CodLst" maxlength="5" />
                                 @if (HasValidationError("CodLst"))
@@ -174,7 +177,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="modal-button cancel-button" @onclick="CloseModal" disabled="@isSaving">Cancel</button>
-                <button type="button" class="modal-button" @onclick="SaveProduct" disabled="@(!IsFormValid() || isSaving)">
+                <button type="button" class="modal-button" @onclick="SaveProduct" disabled="@isSaving">
                     @if (isSaving)
                     {
                         <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
@@ -285,14 +288,15 @@
     {
         if (isSaving || EditProduct == null) return;
 
-        // Clear previous messages and validation errors
-        ClearMessages();
-        
         // Validate form
         if (!ValidateForm())
         {
+            StateHasChanged(); // Force UI update to show validation errors
             return;
         }
+
+        // Clear previous messages and validation errors only after successful validation
+        ClearMessages();
 
         isSaving = true;
         StateHasChanged();
@@ -374,55 +378,7 @@
     {
         if (EditProduct == null) return false;
         
-        validationErrors.Clear();
-
-        // Required field validations
-        if (string.IsNullOrWhiteSpace(EditProduct.DescrItem))
-        {
-            validationErrors["DescrItem"] = "Description is required.";
-        }
-
-        if (string.IsNullOrWhiteSpace(EditProduct.UnidInv))
-        {
-            validationErrors["UnidInv"] = "Inventory Unit is required.";
-        }
-
-        if (string.IsNullOrEmpty(SelectedTipoItem))
-        {
-            validationErrors["TipoItem"] = "Item Type is required.";
-        }
-
-        // Optional field length validations
-        if (!string.IsNullOrWhiteSpace(EditProduct.CodAntItem) && EditProduct.CodAntItem.Length > 60)
-        {
-            validationErrors["CodAntItem"] = "Previous Item Code must not exceed 60 characters.";
-        }
-
-        if (!string.IsNullOrWhiteSpace(EditProduct.CodNcm) && EditProduct.CodNcm.Length != 8)
-        {
-            validationErrors["CodNcm"] = "NCM Code must be exactly 8 characters.";
-        }
-
-        if (!string.IsNullOrWhiteSpace(EditProduct.ExIpi) && EditProduct.ExIpi.Length > 3)
-        {
-            validationErrors["ExIpi"] = "IPI Exception must not exceed 3 characters.";
-        }
-
-        if (!string.IsNullOrWhiteSpace(EditProduct.CodGen) && EditProduct.CodGen.Length > 2)
-        {
-            validationErrors["CodGen"] = "Genre Code must not exceed 2 characters.";
-        }
-
-        if (!string.IsNullOrWhiteSpace(EditProduct.CodLst) && EditProduct.CodLst.Length > 5)
-        {
-            validationErrors["CodLst"] = "Service List Code must not exceed 5 characters.";
-        }
-
-        if (EditProduct.AliqIcms.HasValue && (EditProduct.AliqIcms < 0 || EditProduct.AliqIcms > 100))
-        {
-            validationErrors["AliqIcms"] = "ICMS Rate must be between 0 and 100.";
-        }
-
+        validationErrors = ProductValidationHelper.ValidateProduct(EditProduct, isCreating: false, tipoItemSelected: true);
         return validationErrors.Count == 0;
     }
 
@@ -433,9 +389,7 @@
     {
         if (EditProduct == null) return false;
         
-        return !string.IsNullOrWhiteSpace(EditProduct.DescrItem) &&
-               !string.IsNullOrWhiteSpace(EditProduct.UnidInv) &&
-               Enum.IsDefined(typeof(TipoItem), EditProduct.TipoItem);
+        return ProductValidationHelper.IsValidForEditing(EditProduct);
     }
 
     /// <summary>
@@ -452,28 +406,5 @@
     private string GetValidationError(string fieldName)
     {
         return validationErrors.TryGetValue(fieldName, out var error) ? error : string.Empty;
-    }
-
-    /// <summary>
-    /// Gets display name for TipoItem enum values
-    /// </summary>
-    private string GetTipoItemDisplayName(TipoItem tipo)
-    {
-        return tipo switch
-        {
-            TipoItem.MercadoriaParaRevenda => "Merchandise for Resale",
-            TipoItem.MateriaPrima => "Raw Material",
-            TipoItem.Embalagem => "Packaging",
-            TipoItem.ProdutoEmProcesso => "Work in Process",
-            TipoItem.ProdutoAcabado => "Finished Product",
-            TipoItem.Subproduto => "By-product",
-            TipoItem.ProdutoIntermediario => "Intermediate Product",
-            TipoItem.MaterialDeUsoEConsumo => "Supplies and Consumables",
-            TipoItem.AtivoImobilizado => "Fixed Assets",
-            TipoItem.Servicos => "Services",
-            TipoItem.OutrosInsumos => "Other Inputs",
-            TipoItem.Outras => "Others",
-            _ => tipo.ToString()
-        };
     }
 }
